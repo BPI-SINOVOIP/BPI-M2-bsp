@@ -10,7 +10,6 @@ cp_download_files()
 
 	rm -rf $download
 	mkdir -p $download/lib/modules
-	mkdir -p $download/lib/firmware
 
 	cp $pack_out/boot0_sdcard.fex $download/
         cp $pack_out/u-boot.fex $download/
