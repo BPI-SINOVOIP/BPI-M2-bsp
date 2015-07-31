@@ -1,0 +1,17 @@
+#
+# sunxi dailibuild test configuration.
+#
+# NOTE: this macro define the kernel release version for dailibuild-test or for normal.
+#
+
+config SUNXI_TEST_SELECT
+	bool "sunxi test select"
+	default y
+	help
+	  This macro define the kernel release version for dailibuild-test or for normal.
+	  If you need build/release kernel version for dailibuild-test, please select it, otherwise
+	  please donot select.
+
+
+# for nand test
+# source "drivers/test/nand/Kconfig"

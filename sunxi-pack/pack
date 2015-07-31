@@ -1,0 +1,174 @@
+#!/bin/bash
+
+#set -e
+
+ROOT_DIR=$PWD
+TOOLS_DIR=${ROOT_DIR}/pctools/linux
+PACK_CHIP="sun8iw1p1"
+PACK_PLATFORM="linux"
+PACK_BOARD="evb"
+PACK_BOOT="nand"
+PACK_DEBUG="uart0"
+PACK_SIG="none"
+PACK_MODE="normal"
+
+export PATH=${TOOLS_DIR}/mod_update:${TOOLS_DIR}/eDragonEx:${TOOLS_DIR}/fsbuild200:$PATH
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${TOOLS_DIR}/libs
+
+
+show_help()
+{
+	printf "
+	NAME
+    		pack-new - The pack tools for linux firmware
+
+	SYNOPSIS
+    		pack [-h] [-c chip] [-p platform] [-b board] [-d debug] [-s sig]
+
+	OPTIONS
+    		-h                  		Display help message
+		-c [chip_type]      		Chip type, e.g. sun3i, sun4i, sun5i,...
+    		-p [platform_type]  		Platform type, e.g. linux, crane,...
+    		-b [board_type]     		Board type, e.g. evb1.1, evb1.2, ...
+    		-B [boot_type]      		Boot type, e.g. nand, sdcard, ...
+    		-d [debug_mode]     		Debug modes, e.g. uart0(default), card0
+    		-s [sig_mode]       		Sig modes, e.g. none(default), sig
+
+	All available chips, platfroms, boards are list below
+
+	CHIP  PLATFORM   BOARD
+	--------------------------------
+	"
+
+	for chipp in $(find chips/ -mindepth 1 -maxdepth 1 -type d )
+	do
+    		chip=`basename $chipp`
+    		printf "$chip\n"
+
+    		for platformp in $(find chips/$chip/configs/ -mindepth 1 -maxdepth 1 -type d)
+    		do
+        		platform=`basename $platformp`
+        		printf "      $platform\n"
+
+        		for boardp in $(find chips/$chip/configs/$platform/ -mindepth 1 -maxdepth 1 -type d)
+        		do
+            			board=`basename $boardp`
+            			printf "                $board\n"
+        		done
+    		done
+
+	done
+}
+
+while getopts hc:p:b:B:d:f:s:m: OPTION
+do
+	case $OPTION in
+    	
+	h) show_help
+    		exit 0
+    	;;
+	
+    	c) PACK_CHIP=$OPTARG
+    	;;
+	
+    	b) PACK_BOARD=$OPTARG
+    	;;
+	
+    	p) PACK_PLATFORM=$OPTARG
+    	;;
+    
+	B) PACK_BOOT=$OPTARG
+    	;;
+	
+	d) PACK_DEBUG=$OPTARG
+	;;
+	
+	f) PACK_FUNC=$OPTARG
+	;;
+	
+	s) PACK_SIG=$OPTARG
+	;;
+	
+	m) PACK_MODE=$OPTARG
+	;;
+
+	*) show_help
+    	exit 0
+    	;;
+	
+	esac
+done
+
+OUT_DIR=${ROOT_DIR}/../output
+
+do_prepare()
+{
+	if [ -z "$PACK_CHIP" -o -z "$PACK_BOARD" -o -z "$PACK_PLATFORM" -o  ! -d "chips/$PACK_CHIP/configs/$PACK_PLATFORM/$PACK_BOARD" ]; then
+        	printf "Invalid Parameter\n"
+	        show_help
+        	exit 1
+    	fi
+}
+
+do_clean()
+{
+    	#rm -rf efex boot wboot
+    	#rm -rf out/*.fex out/*.bin
+	printf "pack finish\n"
+}
+
+do_pack_linux()
+{
+    	printf "!!!Packing for bsp !!!\n"
+
+	local pack_out="$OUT_DIR/${PACK_BOARD}/pack"
+	rm -rf "$pack_out"
+	mkdir -p "$pack_out"
+
+    	cp -v chips/$PACK_CHIP/configs/$PACK_PLATFORM/default/* "$pack_out"/
+    	cp -v chips/$PACK_CHIP/configs/$PACK_PLATFORM/$PACK_BOARD/*.fex "$pack_out"/ 2>/dev/null
+    	cp -v chips/$PACK_CHIP/configs/$PACK_PLATFORM/$PACK_BOARD/*.cfg "$pack_out"/ 2>/dev/null
+	
+    	cp -rf chips/$PACK_CHIP/tools/split_xxxx.fex  chips/$PACK_CHIP/boot-resource/boot-resource chips/$PACK_CHIP/boot-resource/boot-resource.ini "$pack_out"/
+    	cp -v chips/$PACK_CHIP/bin/boot0_nand_$PACK_CHIP.bin   $pack_out/boot0_nand.fex
+    	cp -v chips/$PACK_CHIP/bin/boot0_sdcard_$PACK_CHIP.bin $pack_out/boot0_sdcard.fex
+
+	cp -v chips/$PACK_CHIP/bin/u-boot-$PACK_CHIP.bin 	   $pack_out/u-boot.fex
+
+    	cd $pack_out
+
+    	sed -i 's/\\boot-resource/\/boot-resource/g' boot-resource.ini
+
+    	busybox unix2dos sys_config.fex
+    	busybox unix2dos sys_partition.fex
+    	script sys_config.fex
+	script sys_partition.fex
+        cp sys_config.bin config.fex
+        
+	## DK boot0_xx.fex
+	update_boot0 boot0_nand.fex   sys_config.bin NAND
+    	update_boot0 boot0_sdcard.fex sys_config.bin SDMMC_CARD
+	
+	## DK u-boot.fex
+	update_uboot u-boot.fex  sys_config.bin
+	
+	## DK sun6i_mbr.fex
+	update_mbr sys_partition.bin  4
+    	
+	## DK bootloader.fex
+	fsbuild boot-resource.ini split_xxxx.fex
+    	mv boot-resource.fex bootloader.fex
+
+	## DK env.fex
+    	u_boot_env_gen env.cfg env.fex
+
+	## DK boot.fex and rootfs.fex
+    	ln -s $OUT_DIR/${PACK_BOARD}/kernel/boot.img boot.fex
+    	ln -s $OUT_DIR/${PACK_BOARD}/rootfs/rootfs.ext4 rootfs.fex
+
+    	cd - 1>/dev/null
+}
+
+do_prepare
+do_pack_${PACK_PLATFORM}
+do_clean

@@ -1,0 +1,40 @@
+menuconfig ION
+	tristate "Ion Memory Manager"
+	select GENERIC_ALLOCATOR
+	select DMA_SHARED_BUFFER
+	help
+	  Chose this option to enable the ION Memory Manager.
+
+config ION_CARVEOUT
+	bool "Carveout heap"
+	depends on ARM
+	help
+	  Enable physical memory carveout and chunk heaps. Only supported on
+	  ARM platforms.
+
+config ION_SUNXI_CARVEOUT_SIZE_1G
+	int "memory size(in MB) for sunxi carveout ion heap of 1G/2G devices."
+	default 32
+	depends on ION
+	help
+	  Select memory size for sunxi carveout ion heap, the memory is used by modules that need physical continous memory, such as gpu and ve...
+	  Examples:
+	  	     100 => reserve 100M bytes memory for carveout heap.
+	  	     230 => reserve 230M bytes memory for carveout heap.
+
+config ION_SUNXI_CARVEOUT_SIZE_512M
+    int "memory size(in MB) for sunxi carveout ion heap of 512M devices."
+       default 26
+       depends on ION_SUNXI
+       help
+         Select memory size for sunxi carveout ion heap, the memory is used by modules that need physical continous memory, such as gpu and ve...
+         Examples:
+               100 => reserve 100M bytes memory for carveout heap.
+               230 => reserve 230M bytes memory for carveout heap.
+
+config ION_SUNXI
+	tristate "Enable sunxi ion support"
+	default y
+	depends on ION && ARCH_SUN6I
+	help
+	  Enabling this will register the sunxi SYSTEM and CARVEOUT heaps with ion.

@@ -1,0 +1,67 @@
+
+choice
+	prompt "Allwinner Platform Type"
+	depends on ARCH_SUN6I || ARCH_SUN7I
+	default AW_PLATFORM_EVB
+
+config AW_FPGA_V4_PLATFORM
+       bool "FPGAv4 board"
+       help
+         Support for Allwinner's FPGAv4 board
+
+config AW_FPGA_V7_PLATFORM
+       bool "FPGAv7 board"
+       help
+         Support for Allwinner's FPGAv4 board
+
+config AW_ASIC_EVB_PLATFORM
+       bool "EVB board"
+       help
+         Support for Allwinner's EVB board
+
+endchoice
+
+config SUNXI_SYSFS
+	bool "Allwinner SUNXI Sysfs"
+    depends on ARCH_SUN6I
+	help
+	  Support /sys/class/sunxi for kernel.
+
+config SUNXI_POWER_SCENE
+	bool "support scene change notify"
+	depends on SUNXI_SYSFS
+	help
+	  Support /sys/class/sunxi/power/scene for kernel.
+
+config SUNXI_DRAM
+	bool "support dram paras changed dynamically"
+	depends on SUNXI_SYSFS
+	help
+	  Support /sys/class/sunxi/dram for kernel.
+
+config SUNXI_MEMORY_SIZE
+	int "Memory Size(in MB) on sunxi Platform"
+	default 2048
+	depends on ARCH_SUN6I
+	help
+	Memory Size(in MB) on sunxi Platform
+
+config SUNXI_MEMORY_RESERVED_SIZE_1G
+	int "reserved Memory size(in MB) for sunxi 1G/2G deve heap."
+	default 110
+	depends on ARCH_SUN6I
+	help
+	  Select reserved memory size for sunxi 1G/2G deve heap, the memory is used by deve.
+	  Examples:
+	  100 => reserve 100M bytes memory for deve heap.
+	  230 => reserve 230M bytes memory for deve heap.
+
+config SUNXI_MEMORY_RESERVED_SIZE_512M
+	int "reserved Memory size(in MB) for sunxi 512M deve heap."
+	default 78
+	depends on ARCH_SUN6I
+	help
+	  Select reserved memory size for sunxi 512M deve heap, the memory is used by deve.
+	  Examples:
+	  100 => reserve 100M bytes memory for deve heap.
+	  230 => reserve 230M bytes memory for deve heap.

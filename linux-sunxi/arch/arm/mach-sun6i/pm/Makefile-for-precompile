@@ -1,0 +1,67 @@
+INCLUDE   = -I. \
+	-I$(KDIR)/include/ \
+	-I$(KDIR)/arch/arm/include/	\
+	-I$(KDIR)/arch/arm/asm-generic/	\
+	-I$(KDIR)/arch/arm/include/generated/	\
+	-I$(KDIR)/arch/arm/mach-sun6i/include/
+	
+PM-OBJ	= 	pm_tmp.o 		\
+		standby.o 		\
+		mem.o			\
+		./pm.o                          \
+		./mem_context.o                 \
+		./mem_cpu.o                     \
+		./mem_context_asm.o             \
+		./mem_mmu_pc_asm.o              \
+		./mem_mmu_pc.o                  \
+		./mem_int.o                     \
+		./mem_clk.o                     \
+		./mem_tmr.o                     \
+		./mem_twi.o                     \
+		./mem_gpio.o                    \
+		./mem_serial.o                  \
+		./mem_sram.o                    \
+		./mem_ccu.o                     \
+		./pm_debug.o                    \
+		./standby/super/stack.o         \
+		./standby/super/super_power.o   \
+		./standby/super/super_twi.o     \
+		./standby/super/super_clock.o   
+
+STANDBY_OUPUTFILE = pm
+CC = $(CROSS_COMPILE)gcc
+
+CFLAGS = -O0 -g -march=armv7-a -fno-unwind-tables -fno-asynchronous-unwind-tables -mlittle-endian  -E
+all:   pm
+pm:
+	$(CC) $(INCLUDE) $(CFLAGS) 			./standby.S			-o		standby.o 
+	$(CC) $(INCLUDE) $(CFLAGS) 			./mem.S				-o		mem.o
+	$(CC) $(INCLUDE) $(CFLAGS) 			./pm.c				-o		./pm.o 
+	$(CC) $(INCLUDE) $(CFLAGS) 			./mem_context.c			-o		./mem_context.o                 
+	$(CC) $(INCLUDE) $(CFLAGS) 			./mem_cpu.c			-o		./mem_cpu.o                     
+	$(CC) $(INCLUDE) $(CFLAGS) 			./mem_context_asm.S		-o		./mem_context_asm.o             
+	$(CC) $(INCLUDE) $(CFLAGS) 			./mem_mmu_pc_asm.S		-o		./mem_mmu_pc_asm.o              
+	$(CC) $(INCLUDE) $(CFLAGS) 			./mem_mmu_pc.c			-o		./mem_mmu_pc.o                  
+	$(CC) $(INCLUDE) $(CFLAGS) 			./mem_int.c			-o		./mem_int.o                     
+	$(CC) $(INCLUDE) $(CFLAGS) 			./mem_clk.c			-o		./mem_clk.o                     
+	$(CC) $(INCLUDE) $(CFLAGS) 			./mem_tmr.c			-o		./mem_tmr.o                     
+	$(CC) $(INCLUDE) $(CFLAGS) 			./mem_twi.c			-o		./mem_twi.o                     
+	$(CC) $(INCLUDE) $(CFLAGS) 			./mem_gpio.c			-o		./mem_gpio.o                    
+	$(CC) $(INCLUDE) $(CFLAGS) 			./mem_serial.c			-o		./mem_serial.o                  
+	$(CC) $(INCLUDE) $(CFLAGS) 			./mem_sram.c			-o		./mem_sram.o                    
+	$(CC) $(INCLUDE) $(CFLAGS) 			./mem_ccu.c			-o		./mem_ccu.o                     
+	$(CC) $(INCLUDE) $(CFLAGS) 			./pm_debug.c			-o		./pm_debug.o                                             
+	$(CC) $(INCLUDE) $(CFLAGS) 			./standby/super/stack.S		-o		./standby/super/stack.o         
+	$(CC) $(INCLUDE) $(CFLAGS) 			./standby/super/super_power.c	-o		./standby/super/super_power.o   
+	$(CC) $(INCLUDE) $(CFLAGS) 			./standby/super/super_twi.c	-o		./standby/super/super_twi.o     
+	$(CC) $(INCLUDE) $(CFLAGS) 			./standby/super/super_clock.c	-o		./standby/super/super_clock.o     
+
+
+	//$(CROSS_COMPILE)ld -T $(STANDBY_LD_FILE)  -EL  $(STANDBY_OBJ) -o $(STANDBY_OUPUTFILE).elf  -Map $(STANDBY_OUPUTFILE).map
+	$(CROSS_COMPILE)objdump -D $(STANDBY_OUPUTFILE).elf > $(STANDBY_OUPUTFILE).lst
+	$(CROSS_COMPILE)objcopy -O binary $(STANDBY_OUPUTFILE).elf $(STANDBY_OUPUTFILE).bin
+
+
+
+	@echo ----------------------------------------
+	@echo well done!

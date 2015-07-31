@@ -1,0 +1,19 @@
+#
+# sun4i ar100 test configuration.
+#
+
+menuconfig SUN6I_AR100_TEST
+	tristate "sun6i ar100 test drivers"
+	---help---
+	  This module is to test ar100 module, which builted in lichee kernel,
+	  source is in "arch\arm\mach-sun6i\ar100" directory.
+
+if SUN6I_AR100_TEST
+
+config AR100_TEST_DRIVER
+	tristate "sun6i ar100 test driver"
+	default m
+	help
+	  Nothing help.
+
+endif # SUN6I_AR100_TEST

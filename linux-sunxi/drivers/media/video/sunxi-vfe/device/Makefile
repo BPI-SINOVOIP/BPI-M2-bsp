@@ -1,0 +1,30 @@
+obj-$(CONFIG_CSI_VFE)           += cci.o
+
+obj-m			+= ov5640.o
+obj-m			+= s5k4ec.o
+obj-m			+= s5k4ec_mipi.o
+obj-m			+= gc2035.o
+obj-m			+= gt2005.o
+obj-m			+= gc0307.o
+obj-m			+= gc0308.o
+obj-m			+= gc0329.o
+obj-m			+= gc2235.o
+obj-m			+= hi253.o
+obj-m			+= ov8825.o
+obj-m			+= ov8850.o
+
+obj-m			+= ov5650.o
+obj-m			+= ov5647.o
+obj-m			+= ov5647_mipi.o
+obj-m			+= t8et5.o
+obj-m			+= s5k4e1.o
+obj-m			+= s5k4e1_mipi.o
+obj-m			+= sp2518.o
+obj-m			+= sp0718.o
+obj-m			+= gc5004.o
+obj-m			+= gc5004_mipi.o
+obj-m			+= ov5648.o
+obj-m			+= ar0330.o
+obj-m			+= ov5648.o
+obj-m			+= sp5408.o
+obj-m			+= ov12830.o

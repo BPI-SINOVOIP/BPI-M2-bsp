@@ -1,0 +1,9 @@
+#
+# sun46 dma test configuration.
+#
+config DMA_TEST_DRIVER
+	tristate "sun6i dma test driver"
+	default m
+	help
+	Nothing help.
+

@@ -1,0 +1,8 @@
+menu "gpu"
+
+source "drivers/gpu/ion/Kconfig"
+source "drivers/gpu/drm/Kconfig"
+source "drivers/gpu/stub/Kconfig"
+source "drivers/gpu/vga/Kconfig"
+
+endmenu

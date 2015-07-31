@@ -1,0 +1,170 @@
+
+Allocating common symbols
+Common symbol       size              file
+
+debugger_buffer     0x100             mdfs.o
+mdfs_info           0x208             mdfs_entry.o
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+*default*        0x00000000         0xffffffff
+
+Linker script and memory map
+
+                0x00000000                __mdfs_start = .
+
+.text           0xf0000000      0xc58
+ mdfs_entry.o(.text.startup)
+ *(.text)
+ .text          0xf0000000       0x8c mdfs_entry.o
+                0xf0000000                mdfs_main
+ .text          0xf000008c      0x9f8 mdfs.o
+                0xf000008c                serial_puts
+                0xf0000104                strlen
+                0xf0000130                strcpy
+                0xf000014c                itoa
+                0xf0000230                utoa
+                0xf00002ec                strncat
+                0xf0000354                print_align
+                0xf00003b0                printk
+                0xf0000684                __div0
+                0xf0000690                mdfs_memcpy
+                0xf00006c0                mdfs_memset
+                0xf00006e8                mdfs_start
+ .text          0xf0000a84       0x20 mem_mmu_pc_asm.o
+                0xf0000a84                save_sp
+                0xf0000a90                restore_sp
+                0xf0000a98                get_sp
+ .text          0xf0000aa4      0x1a8 mem_divlib.o
+                0xf0000aa4                Ldiv0
+                0xf0000ab4                __aeabi_uidiv
+                0xf0000b50                __aeabi_idiv
+                0xf0000c1c                __aeabi_uidivmod
+                0xf0000c34                __aeabi_idivmod
+ *(.rodata)
+ .rodata        0xf0000c4c        0xc mdfs_entry.o
+
+.rodata.str1.4  0xf0000c58       0x68
+ .rodata.str1.4
+                0xf0000c58       0x24 mdfs_entry.o
+ .rodata.str1.4
+                0xf0000c7c       0x44 mdfs.o
+
+.glue_7         0xf0000cc0        0x0
+ .glue_7        0x00000000        0x0 linker stubs
+
+.glue_7t        0xf0000cc0        0x0
+ .glue_7t       0x00000000        0x0 linker stubs
+
+.vfp11_veneer   0xf0000cc0        0x0
+ .vfp11_veneer  0x00000000        0x0 linker stubs
+
+.v4_bx          0xf0000cc0        0x0
+ .v4_bx         0x00000000        0x0 linker stubs
+
+.iplt           0xf0000cc0        0x0
+ .iplt          0x00000000        0x0 mdfs_entry.o
+
+.rel.dyn        0xf0000cc0        0x0
+ .rel.iplt      0x00000000        0x0 mdfs_entry.o
+
+.data           0xf0000cc0        0x0
+ *(.data)
+ .data          0xf0000cc0        0x0 mdfs_entry.o
+ .data          0xf0000cc0        0x0 mdfs.o
+ .data          0xf0000cc0        0x0 mem_mmu_pc_asm.o
+ .data          0xf0000cc0        0x0 mem_divlib.o
+                0xf0000cc0                __bss_start = .
+
+.igot.plt       0xf0000cc0        0x0
+ .igot.plt      0x00000000        0x0 mdfs_entry.o
+
+.bss            0xf0000cc0      0x30c
+ *(.sbss)
+ *(.scommon)
+ *(.bss)
+ .bss           0xf0000cc0        0x4 mdfs_entry.o
+ .bss           0xf0000cc4        0x0 mdfs.o
+ .bss           0xf0000cc4        0x0 mem_mmu_pc_asm.o
+ .bss           0xf0000cc4        0x0 mem_divlib.o
+ *(COMMON)
+ COMMON         0xf0000cc4      0x208 mdfs_entry.o
+                0xf0000cc4                mdfs_info
+ COMMON         0xf0000ecc      0x100 mdfs.o
+                0xf0000ecc                debugger_buffer
+                0xf0000fcc                __bss_end = .
+                0xf0000fcc                __mdfs_end = .
+LOAD mdfs_entry.o
+LOAD mdfs.o
+LOAD mem_mmu_pc_asm.o
+LOAD mem_divlib.o
+OUTPUT(mdfs.elf elf32-littlearm)
+
+.debug_info     0x00000000      0xa29
+ .debug_info    0x00000000      0x14b mdfs_entry.o
+ .debug_info    0x0000014b      0x794 mdfs.o
+ .debug_info    0x000008df       0xa7 mem_mmu_pc_asm.o
+ .debug_info    0x00000986       0xa3 mem_divlib.o
+
+.debug_abbrev   0x00000000      0x3ca
+ .debug_abbrev  0x00000000      0x10d mdfs_entry.o
+ .debug_abbrev  0x0000010d      0x295 mdfs.o
+ .debug_abbrev  0x000003a2       0x14 mem_mmu_pc_asm.o
+ .debug_abbrev  0x000003b6       0x14 mem_divlib.o
+
+.debug_loc      0x00000000      0xa42
+ .debug_loc     0x00000000       0x3e mdfs_entry.o
+ .debug_loc     0x0000003e      0xa04 mdfs.o
+
+.debug_aranges  0x00000000       0x80
+ .debug_aranges
+                0x00000000       0x20 mdfs_entry.o
+ .debug_aranges
+                0x00000020       0x20 mdfs.o
+ .debug_aranges
+                0x00000040       0x20 mem_mmu_pc_asm.o
+ .debug_aranges
+                0x00000060       0x20 mem_divlib.o
+
+.debug_line     0x00000000      0x5ce
+ .debug_line    0x00000000       0xd3 mdfs_entry.o
+ .debug_line    0x000000d3      0x436 mdfs.o
+ .debug_line    0x00000509       0x49 mem_mmu_pc_asm.o
+ .debug_line    0x00000552       0x7c mem_divlib.o
+
+.debug_str      0x00000000      0x243
+ .debug_str     0x00000000      0x10f mdfs_entry.o
+                                0x129 (size before relaxing)
+ .debug_str     0x0000010f      0x134 mdfs.o
+                                0x21a (size before relaxing)
+
+.comment        0x00000000       0x64
+ .comment       0x00000000       0x64 mdfs_entry.o
+                                 0x65 (size before relaxing)
+ .comment       0x00000000       0x65 mdfs.o
+
+.note.GNU-stack
+                0x00000000        0x0
+ .note.GNU-stack
+                0x00000000        0x0 mdfs_entry.o
+ .note.GNU-stack
+                0x00000000        0x0 mdfs.o
+
+.ARM.attributes
+                0x00000000       0x33
+ .ARM.attributes
+                0x00000000       0x35 mdfs_entry.o
+ .ARM.attributes
+                0x00000035       0x35 mdfs.o
+ .ARM.attributes
+                0x0000006a       0x21 mem_mmu_pc_asm.o
+ .ARM.attributes
+                0x0000008b       0x21 mem_divlib.o
+
+.debug_frame    0x00000000      0x180
+ .debug_frame   0x00000000       0x30 mdfs_entry.o
+ .debug_frame   0x00000030      0x150 mdfs.o
+
+.debug_ranges   0x00000000       0x20
+ .debug_ranges  0x00000000       0x20 mdfs.o

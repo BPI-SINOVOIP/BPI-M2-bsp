@@ -1,0 +1,10 @@
+#
+# sunxi continous physic memory test.
+#
+
+config SUNXI_MEM_TEST
+	tristate "sunxi continous physic memory allocator test driver"
+	default m
+	depends on SUNXI_PHYS_MEM_ALLOCATOR
+	help
+	Nothing help.

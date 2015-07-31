@@ -1,0 +1,7 @@
+#config TV_DEV_SEL
+#	tristate
+	
+config TV_GM7121
+	tristate "GM7121 driver for SUNXI"
+	default m
+	---help---
