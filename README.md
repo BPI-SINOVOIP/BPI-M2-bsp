@@ -8,7 +8,7 @@ Getting Started
 
 2. Choose a board doing
 
-"This tool support following BPI board(s):"
+"This tool supports the following BPI board(s):"
 
 ************************************************"
 
