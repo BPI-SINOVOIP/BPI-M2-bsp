@@ -68,8 +68,8 @@
 //#define CONFIG_SUPPORT_FTS_CTP_UPG
 
 static u32 debug_mask = 0;
-#define dprintk(level_mask,fmt,arg...)    if(unlikely(debug_mask & level_mask)) \
-        printk("***CTP***"fmt, ## arg)
+#define dprintk(level_mask,fmt,arg...)   if(unlikely(debug_mask & level_mask)) \
+		printk("***CTP***"fmt, ## arg)
         
 struct i2c_dev{
         struct list_head list;	
@@ -125,13 +125,14 @@ static int ctp_detect(struct i2c_client *client, struct i2c_board_info *info)
                 return -ENODEV;
     
         //Justin Porting 20150727 Start 
-	if(twi_id == adapter->nr){
+		if(twi_id == adapter->nr){
 	        ret = i2c_smbus_read_byte_data(client,0xA3);
 		if(ret == -70) {
 			msleep(10);
 			ret = i2c_smbus_read_byte_data(client,0xA3);
 		}
 		printk("addr:0x%x,chip_id_value:0x%x\n",client->addr,ret);
+		
 		while((chip_id_value[i++]) && (i <= sizeof(chip_id_value)/sizeof(chip_id_value[0]))){
         //Justin Porting 20150727 End
 		
@@ -804,7 +805,7 @@ static int ft5x_set_reg(u8 addr, u8 para)
 static void ft5x_ts_release(void)
 {
 	struct ft5x_ts_data *data = i2c_get_clientdata(this_client);
-#ifdef CONFIG_FT5X0X_MULTITOUCH	
+
 #ifdef TOUCH_KEY_SUPPORT
 	if(1 == key_tp){
 		input_report_key(data->input_dev, key_val, 0);
@@ -816,11 +817,9 @@ static void ft5x_ts_release(void)
 	input_report_abs(data->input_dev, ABS_MT_TOUCH_MAJOR, 0);
 #endif
 
-#else
 	input_report_abs(data->input_dev, ABS_PRESSURE, 0);
 	input_report_key(data->input_dev, BTN_TOUCH, 0);
-#endif
-	
+
 	input_sync(data->input_dev);
 	return;
 
@@ -832,12 +831,9 @@ static int ft5x_read_data(void)
 	struct ts_event *event = &data->event;
 	unsigned char buf[32]={0};
 	int ret = -1;
-        
-#ifdef CONFIG_FT5X0X_MULTITOUCH
+
 	ret = ft5x_i2c_rxdata(buf, 31);
-#else
-	ret = ft5x_i2c_rxdata(buf, 31);
-#endif
+
 	if (ret < 0) {
 		dprintk(DEBUG_X_Y_INFO,"%s read_data i2c_rxdata failed: %d\n", __func__, ret);
 		return ret;
@@ -961,72 +957,65 @@ static void ft5x_report_multitouch(void)
 
 	switch(event->touch_point) {
 	case 5:
-		input_report_abs(data->input_dev, ABS_MT_TRACKING_ID, event->touch_ID5);	
-		input_report_abs(data->input_dev, ABS_MT_TOUCH_MAJOR, event->pressure);
+		input_report_abs(data->input_dev, ABS_MT_TRACKING_ID, event->touch_ID5);
+		input_report_abs(data->input_dev, ABS_MT_TOUCH_MAJOR, 1);
 		input_report_abs(data->input_dev, ABS_MT_POSITION_X, event->x5);
 		input_report_abs(data->input_dev, ABS_MT_POSITION_Y, event->y5);
-		input_report_abs(data->input_dev, ABS_MT_WIDTH_MAJOR, 1);
+		input_report_abs(data->input_dev, ABS_MT_PRESSURE, event->pressure);
+		input_report_key(data->input_dev, BTN_TOUCH, 1);
 		input_mt_sync(data->input_dev);
-		dprintk(DEBUG_X_Y_INFO,"report data:===x5 = %d,y5 = %d ====\n",event->x5,event->y5);
+		dprintk(DEBUG_X_Y_INFO, "===x5 = %d,y5 = %d ====\n",event->x5,event->y5);
 	case 4:
-		input_report_abs(data->input_dev, ABS_MT_TRACKING_ID, event->touch_ID4);	
-		input_report_abs(data->input_dev, ABS_MT_TOUCH_MAJOR, event->pressure);
+		input_report_abs(data->input_dev, ABS_MT_TRACKING_ID, event->touch_ID4);
+		input_report_abs(data->input_dev, ABS_MT_TOUCH_MAJOR, 1);
 		input_report_abs(data->input_dev, ABS_MT_POSITION_X, event->x4);
 		input_report_abs(data->input_dev, ABS_MT_POSITION_Y, event->y4);
-		input_report_abs(data->input_dev, ABS_MT_WIDTH_MAJOR, 1);
+		input_report_abs(data->input_dev, ABS_MT_PRESSURE, event->pressure);
+		input_report_key(data->input_dev, BTN_TOUCH, 1);
 		input_mt_sync(data->input_dev);
-		dprintk(DEBUG_X_Y_INFO,"report data:===x4 = %d,y4 = %d ====\n",event->x4,event->y4);
+		dprintk(DEBUG_X_Y_INFO, "===x4 = %d,y4 = %d ====\n",event->x4,event->y4);
 	case 3:
-		input_report_abs(data->input_dev, ABS_MT_TRACKING_ID, event->touch_ID3);	
-		input_report_abs(data->input_dev, ABS_MT_TOUCH_MAJOR, event->pressure);
+		input_report_abs(data->input_dev, ABS_MT_TRACKING_ID, event->touch_ID3);
+		input_report_abs(data->input_dev, ABS_MT_TOUCH_MAJOR, 1);
 		input_report_abs(data->input_dev, ABS_MT_POSITION_X, event->x3);
 		input_report_abs(data->input_dev, ABS_MT_POSITION_Y, event->y3);
-		input_report_abs(data->input_dev, ABS_MT_WIDTH_MAJOR, 1);
+		input_report_abs(data->input_dev, ABS_MT_PRESSURE, event->pressure);
+		input_report_key(data->input_dev, BTN_TOUCH, 1);
 		input_mt_sync(data->input_dev);
-		dprintk(DEBUG_X_Y_INFO,"report data:===x3 = %d,y3 = %d ====\n",event->x3,event->y3);
+		dprintk(DEBUG_X_Y_INFO, "===x3 = %d,y3 = %d ====\n",event->x3,event->y3);
 	case 2:
-		input_report_abs(data->input_dev, ABS_MT_TRACKING_ID, event->touch_ID2);	
-		input_report_abs(data->input_dev, ABS_MT_TOUCH_MAJOR, event->pressure);
+		input_report_abs(data->input_dev, ABS_MT_TRACKING_ID, event->touch_ID2);
+		input_report_abs(data->input_dev, ABS_MT_TOUCH_MAJOR, 1);
 		input_report_abs(data->input_dev, ABS_MT_POSITION_X, event->x2);
 		input_report_abs(data->input_dev, ABS_MT_POSITION_Y, event->y2);
-		input_report_abs(data->input_dev, ABS_MT_WIDTH_MAJOR, 1);
+		input_report_abs(data->input_dev, ABS_MT_PRESSURE, event->pressure);
+		input_report_key(data->input_dev, BTN_TOUCH, 1);
 		input_mt_sync(data->input_dev);
-		dprintk(DEBUG_X_Y_INFO,"report data:===x2 = %d,y2 = %d ====\n",event->x2,event->y2);
+		dprintk(DEBUG_X_Y_INFO, "===x2 = %d,y2 = %d ====\n",event->x2,event->y2);
 	case 1:
-		input_report_abs(data->input_dev, ABS_MT_TRACKING_ID, event->touch_ID1);	
-		input_report_abs(data->input_dev, ABS_MT_TOUCH_MAJOR, event->pressure);
-		input_report_abs(data->input_dev, ABS_MT_POSITION_X, event->x1);
-		input_report_abs(data->input_dev, ABS_MT_POSITION_Y, event->y1);
-		input_report_abs(data->input_dev, ABS_MT_WIDTH_MAJOR, 1);
-		input_mt_sync(data->input_dev);
-		dprintk(DEBUG_X_Y_INFO,"report data:===x1 = %d,y1 = %d ====\n",event->x1,event->y1);
-		break;
-	default:
-		dprintk(DEBUG_X_Y_INFO,"report data:==touch_point default =\n");
-		break;
-	}
-	
-	input_sync(data->input_dev);
-	return;
-}
-
-#ifndef CONFIG_FT5X0X_MULTITOUCH
-static void ft5x_report_singletouch(void)
-{
-	struct ft5x_ts_data *data = i2c_get_clientdata(this_client);
-	struct ts_event *event = &data->event;
-	
-	if (event->touch_point == 1) {
 		input_report_abs(data->input_dev, ABS_X, event->x1);
 		input_report_abs(data->input_dev, ABS_Y, event->y1);
 		input_report_abs(data->input_dev, ABS_PRESSURE, event->pressure);
+
+		input_report_abs(data->input_dev, ABS_MT_TRACKING_ID, event->touch_ID1);
+		input_report_abs(data->input_dev, ABS_MT_TOUCH_MAJOR, 1);
+		input_report_abs(data->input_dev, ABS_MT_POSITION_X, event->x1);
+		input_report_abs(data->input_dev, ABS_MT_POSITION_Y, event->y1);
+		input_report_abs(data->input_dev, ABS_MT_PRESSURE, event->pressure);
+		input_report_key(data->input_dev, BTN_TOUCH, 1);
+		input_mt_sync(data->input_dev);
+		dprintk(DEBUG_X_Y_INFO, "===x1 = %d,y1 = %d, pressure = %d ====\n",event->x1,event->y1,event->pressure);
+		break;
+	default:
+		dprintk(DEBUG_X_Y_INFO, "==touch_point default =\n");
+		break;
 	}
-	dprintk(DEBUG_X_Y_INFO,"report:===x1 = %d,y1 = %d ====\n",event->x1,event->y1);
-	input_report_key(data->input_dev, BTN_TOUCH, 1);
+	
 	input_sync(data->input_dev);
+	dev_dbg(&this_client->dev, "%s: 1:%d %d 2:%d %d\n", __func__,
+		event->x1, event->y1, event->x2, event->y2);
 	return;
 }
-#endif
 
 #ifdef TOUCH_KEY_SUPPORT
 static void ft5x_report_touchkey(void)
@@ -1099,12 +1088,7 @@ static void ft5x_report_value(void)
 #ifdef TOUCH_KEY_SUPPORT
 	ft5x_report_touchkey();
 #endif
-
-#ifdef CONFIG_FT5X0X_MULTITOUCH
 	ft5x_report_multitouch();
-#else	/* CONFIG_FT5X0X_MULTITOUCH*/
-	ft5x_report_singletouch();
-#endif	/* CONFIG_FT5X0X_MULTITOUCH*/
 	return;
 }	
 
@@ -1243,22 +1227,34 @@ ft5x_ts_probe(struct i2c_client *client, const struct i2c_device_id *id)
 	
 	ft5x_ts->input_dev = input_dev;
 
-#ifdef CONFIG_FT5X0X_MULTITOUCH
+	set_bit(EV_ABS, input_dev->evbit);
+	set_bit(EV_KEY, input_dev->evbit);
+
+	set_bit(ABS_X, input_dev->absbit);
+	set_bit(ABS_Y, input_dev->absbit);
+	set_bit(ABS_PRESSURE, input_dev->absbit);
+
+	set_bit(BTN_TOUCH, input_dev->keybit);
+
+	input_set_abs_params(input_dev,
+			ABS_X, 0, SCREEN_MAX_X, 0, 0);
+	input_set_abs_params(input_dev,
+			ABS_Y, 0, SCREEN_MAX_Y, 0, 0);
+	input_set_abs_params(input_dev,
+			ABS_PRESSURE, 0, PRESS_MAX, 0 , 0);
+	input_set_abs_params(input_dev,
+			ABS_MT_PRESSURE, 0, PRESS_MAX, 0 , 0);
+
 	set_bit(ABS_MT_TOUCH_MAJOR, input_dev->absbit);
 	set_bit(ABS_MT_POSITION_X, input_dev->absbit);
 	set_bit(ABS_MT_POSITION_Y, input_dev->absbit);
-	set_bit(ABS_MT_WIDTH_MAJOR, input_dev->absbit);	
-#ifdef FOR_TSLIB_TEST
-	set_bit(BTN_TOUCH, input_dev->keybit);
-#endif
+
 	input_set_abs_params(input_dev,
 			     ABS_MT_POSITION_X, 0, SCREEN_MAX_X, 0, 0);
 	input_set_abs_params(input_dev,
 			     ABS_MT_POSITION_Y, 0, SCREEN_MAX_Y, 0, 0);
 	input_set_abs_params(input_dev,
-			     ABS_MT_TOUCH_MAJOR, 0, PRESS_MAX, 0, 0);
-	input_set_abs_params(input_dev,
-			     ABS_MT_WIDTH_MAJOR, 0, 200, 0, 0);
+			     ABS_MT_TOUCH_MAJOR, 0, 1, 0, 0);
 	input_set_abs_params(input_dev,
 			     ABS_MT_TRACKING_ID, 0, 4, 0, 0);
 #ifdef TOUCH_KEY_SUPPORT
@@ -1267,19 +1263,7 @@ ft5x_ts_probe(struct i2c_client *client, const struct i2c_device_id *id)
 	for (i = 1; i < TOUCH_KEY_NUMBER; i++)
 		set_bit(i, input_dev->keybit);
 #endif
-#else
-	set_bit(ABS_X, input_dev->absbit);
-	set_bit(ABS_Y, input_dev->absbit);
-	set_bit(ABS_PRESSURE, input_dev->absbit);
-	set_bit(BTN_TOUCH, input_dev->keybit);
-	input_set_abs_params(input_dev, ABS_X, 0, SCREEN_MAX_X, 0, 0);
-	input_set_abs_params(input_dev, ABS_Y, 0, SCREEN_MAX_Y, 0, 0);
-	input_set_abs_params(input_dev,
-			     ABS_PRESSURE, 0, PRESS_MAX, 0 , 0);
-#endif
 
-	set_bit(EV_ABS, input_dev->evbit);
-	set_bit(EV_KEY, input_dev->evbit);
 
 	input_dev->name	= CTP_NAME;		//dev_name(&client->dev)
 	err = input_register_device(input_dev);
@@ -1305,9 +1289,6 @@ ft5x_ts_probe(struct i2c_client *client, const struct i2c_device_id *id)
 	register_early_suspend(&ft5x_ts->early_suspend);
 #endif
 
-#ifdef CONFIG_FT5X0X_MULTITOUCH
-	dprintk(DEBUG_INIT,"CONFIG_FT5X0X_MULTITOUCH is defined. \n");
-#endif
         int_handle = sw_gpio_irq_request(CTP_IRQ_NUMBER,CTP_IRQ_MODE,(peint_handle)ft5x_ts_interrupt,ft5x_ts);
 	if (!int_handle) {
 		printk("ft5x_ts_probe: request irq failed\n");
@@ -1352,7 +1333,7 @@ static int __devexit ft5x_ts_remove(struct i2c_client *client)
 	struct ft5x_ts_data *ft5x_ts = i2c_get_clientdata(client);
 	ft5x_set_reg(FT5X0X_REG_PMODE, PMODE_HIBERNATE);
 	
-	printk("==ft5x_ts_remove=\n");
+	dprintk(DEBUG_INIT, "==ft5x_ts_remove=\n");
 	device_destroy(i2c_dev_class, MKDEV(I2C_MAJOR,client->adapter->nr));
 	sw_gpio_irq_free(int_handle);
 #ifdef CONFIG_HAS_EARLYSUSPEND
@@ -1485,10 +1466,10 @@ static int ctp_get_system_config(void)
 static int __init ft5x_ts_init(void)
 { 
 	int ret = -1;      
-	dprintk(DEBUG_INIT,"****************************************************************\n");
+	dprintk(DEBUG_INIT,"%s begin\n", __func__);
 	if(config_info.ctp_used == 0){
-	        printk("*** ctp_used set to 0 !\n");
-	        printk("*** if use ctp,please put the sys_config.fex ctp_used set to 1. \n");
+	        dprintk(DEBUG_INIT, "ctp_used set to 0 !\n");
+	        dprintk(DEBUG_INIT, "if use ctp,please put the sys_config.fex ctp_used set to 1. \n");
 	        return 0;
 	}
         if(!ctp_get_system_config()){
@@ -1510,14 +1491,16 @@ static int __init ft5x_ts_init(void)
 		ret = PTR_ERR(i2c_dev_class);		
 		class_destroy(i2c_dev_class);	
 	}
-        ret = i2c_add_driver(&ft5x_ts_driver);
-        dprintk(DEBUG_INIT,"****************************************************************\n");
+
+	ret = i2c_add_driver(&ft5x_ts_driver);
+    dprintk(DEBUG_INIT, "%s end\n", __func__);
+	
 	return ret;
 }
 
 static void __exit ft5x_ts_exit(void)
 {
-	printk("==ft5x_ts_exit==\n");
+	dprintk(DEBUG_INIT, "%s\n", __func__);
 	i2c_del_driver(&ft5x_ts_driver);
 	class_destroy(i2c_dev_class);
 	unregister_chrdev(I2C_MAJOR, "aw_i2c_ts");
