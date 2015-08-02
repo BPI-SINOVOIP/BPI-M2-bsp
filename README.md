@@ -34,10 +34,11 @@ Step 1.To be on safe side erase the first part of your SD Card (also clears the 
 
        sudo  dd if=/dev/zero of=${card} bs=1M count=1
 
-Step 2.Go to folder "Download", put the file(s) to 100MB of the SD Card whit DD command..
+Step 2.Go to folder "Download", put the file(s) to 100MB of the SD Card whit DD command.
 
 
- sudo dd if=boot0_sdcard.fex     of=${card} bs=1k seek=8
+
+	 sudo dd if=boot0_sdcard.fex     of=${card} bs=1k seek=8
 
 	sudo dd if=u-boot.fex 	        of=${card} bs=1k seek=19096
 	
