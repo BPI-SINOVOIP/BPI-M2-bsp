@@ -86,7 +86,7 @@ uart_debug_tx   = port:PH20<2><1><default><default>
 uart_debug_rx   = port:PH21<2><1><default><default>
 
 [jtag_para]
-jtag_enable     = 1
+jtag_enable     = 0
 jtag_ms         = port:PH9<3><default><default><default>
 jtag_ck         = port:PH10<3><default><default><default>
 jtag_do         = port:PH11<3><default><default><default>
@@ -271,7 +271,7 @@ twi_scl         = port:PH16<2><default><default><default>
 twi_sda         = port:PH17<2><default><default><default>
 
 [twi2_para]
-twi_used        = 1
+twi_used        = 0
 twi_scl         = port:PH18<2><default><default><default>
 twi_sda         = port:PH19<2><default><default><default>
 
@@ -1343,10 +1343,37 @@ gpio_pin_1         =
 ;gpio configuration 
 ;----------------------------------------------------------------------------------
 [gpio_para]                    
-gpio_used                 = 1
-gpio_pin_1                = port:PG10<1><default><default><0>
-gpio_pin_2                = port:PG11<1><default><default><0>
-
+gpio_used                  = 1
+gpio_pin_1                 = port:PG10<1><default><default><default>
+gpio_pin_2                 = port:PH19<1><default><default><default>
+gpio_pin_3                 = port:PH18<1><default><default><default>
+gpio_pin_4                 = port:PH09<1><default><default><default>
+gpio_pin_5                 = port:PB00<1><default><default><default>
+gpio_pin_6                 = port:PB01<1><default><default><default>
+gpio_pin_7                 = port:PG12<1><default><default><default>
+gpio_pin_8                 = port:PG13<1><default><default><default>
+gpio_pin_9                 = port:PG16<1><default><default><default>
+gpio_pin_10                = port:PG15<1><default><default><default>
+gpio_pin_11                = port:PG14<1><default><default><default>
+gpio_pin_12                = port:PB07<1><default><default><default>
+gpio_pin_13                = port:PB02<1><default><default><default>
+gpio_pin_14                = port:PE04<1><default><default><default>
+gpio_pin_15                = port:PE05<1><default><default><default>
+gpio_pin_16                = port:PE06<1><default><default><default>
+gpio_pin_17                = port:PG07<1><default><default><default>
+gpio_pin_18                = port:PH10<1><default><default><default>
+gpio_pin_19                = port:PB03<1><default><default><default>
+gpio_pin_20                = port:PE07<1><default><default><default>
+gpio_pin_21                = port:PM02<1><default><default><default>
+gpio_pin_22                = port:PG09<1><default><default><default>
+gpio_pin_23                = port:PH11<1><default><default><default>
+gpio_pin_24                = port:PH12<1><default><default><default>
+gpio_pin_25                = port:PG08<1><default><default><default>
+gpio_pin_26                = port:PB04<1><default><default><default>
+gpio_pin_27                = port:PG06<1><default><default><default>
+gpio_pin_28                = port:PB06<1><default><default><default>
+gpio_pin_29                = port:PB05<1><default><default><default>
+gpio_pin_30                = port:PG11<1><default><default><default>
 
 ;-------------------------------------------------------------------------------------
 ;pmu_used                    ---0:not used,1:used

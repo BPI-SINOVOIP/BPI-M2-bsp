@@ -778,7 +778,7 @@ void board_init_r(gd_t *id, ulong dest_addr)
     axp22_set_supply_status_byname("dldo2", 2800, 1);
 	axp22_set_supply_status_byname("dldo3", 3300, 1);
 	axp22_set_supply_status_byname("gpio1", 2800, 1);
-	axp22_set_supply_status_byname("gpio2", 1800, 1);
+	axp22_set_supply_status_byname("gpio2", 3300, 1);
 	axp22_set_supply_status_byname("aldo1", 3300, 1);
      //Justin Porting for BPI-M2 20150727 Start
 #if (defined(CONFIG_SUN6I) || defined(CONFIG_A50) || defined(CONFIG_SUN7I))
