@@ -36,7 +36,10 @@
 
 DECLARE_RWSEM(gpio_sw_list_lock);
 LIST_HEAD(gpio_sw_list);
+
+#ifdef GPIO_SUNXI_DEBUGFS
 static struct class *gpio_sw_class;
+#endif
 
 struct sw_gpio_pd {
 	char					name[16];
@@ -76,6 +79,7 @@ struct sw_gpio {
 static struct platform_device *gpio_sw_dev[256];
 static struct sw_gpio_pd *sw_pdata[256];
 
+#ifdef GPIO_SUNXI_DEBUGFS
 static int
 gpio_sw_cfg_set(struct gpio_sw_classdev *gpio_sw_cdev,int  mul_cfg){
 	return sw_gpio_setcfg(gpio_sw_cdev->item->gpio.gpio,mul_cfg);
@@ -124,7 +128,7 @@ static ssize_t cfg_sel_show(struct device *dev,
 	int length;
 
 	mutex_lock(&gpio_sw_cdev->class_mutex);
-	gpio_sw_cdev->item->gpio.mul_sel = gpio_sw_cdev->gpio_sw_drv_get(gpio_sw_cdev);
+	gpio_sw_cdev->item->gpio.mul_sel = gpio_sw_cdev->gpio_sw_cfg_get(gpio_sw_cdev);
 	length = sprintf(buf, "%u\n", gpio_sw_cdev->item->gpio.mul_sel);
 	mutex_unlock(&gpio_sw_cdev->class_mutex);
 
@@ -138,7 +142,7 @@ static ssize_t pull_show(struct device *dev,
 	int length;
 
 	mutex_lock(&gpio_sw_cdev->class_mutex);
-	gpio_sw_cdev->item->gpio.pull = gpio_sw_cdev->gpio_sw_drv_get(gpio_sw_cdev);
+	gpio_sw_cdev->item->gpio.pull = gpio_sw_cdev->gpio_sw_pull_get(gpio_sw_cdev);
 	length = sprintf(buf, "%u\n", gpio_sw_cdev->item->gpio.pull);
 	mutex_unlock(&gpio_sw_cdev->class_mutex);
 
@@ -253,17 +257,6 @@ static ssize_t data_store(struct device *dev,
 	return ret;
 }
 
-
-static int
-gpio_sw_suspend(struct device *dev, pm_message_t state)
-{
-	return 0;
-}
-
-static int gpio_sw_resume(struct device *dev)
-{
-	return 0;
-}
 #if 0
 	/* this node is prepared fot interrupt*/
 static ssize_t trigger_show(struct device *dev,
@@ -314,8 +307,7 @@ static struct device_attribute gpio_sw_class_attrs[] = {
 	__ATTR_NULL,
 };
 
-void
-gpio_sw_classdev_unregister(struct gpio_sw_classdev *gpio_sw_cdev)
+void gpio_sw_classdev_unregister(struct gpio_sw_classdev *gpio_sw_cdev)
 {
 	mutex_destroy(&gpio_sw_cdev->class_mutex);
 	device_unregister(gpio_sw_cdev->dev);
@@ -324,17 +316,7 @@ gpio_sw_classdev_unregister(struct gpio_sw_classdev *gpio_sw_cdev)
 	up_write(&gpio_sw_list_lock);
 }
 
-static int __devexit gpio_sw_remove(struct platform_device *dev)
-{
-	struct sw_gpio *sw_gpio_entry=platform_get_drvdata(dev);
-	gpio_sw_classdev_unregister(&sw_gpio_entry->class);
-	kfree(sw_gpio_entry->class.item);
-	kfree(sw_gpio_entry);
-	return 0;
-}
-
-int
-gpio_sw_classdev_register(struct device *parent,
+int gpio_sw_classdev_register(struct device *parent,
 		struct gpio_sw_classdev *gpio_sw_cdev)
 {
 	gpio_sw_cdev->dev = device_create(gpio_sw_class, parent, 0, gpio_sw_cdev,
@@ -425,26 +407,86 @@ map_fail:
 	return -1;
 }
 
+static int gpio_sw_suspend(struct device *dev, pm_message_t state)
+{
+	return 0;
+}
+
+static int gpio_sw_resume(struct device *dev)
+{
+	return 0;
+}
+#endif
+
+static int __devexit gpio_sw_remove(struct platform_device *dev)
+{
+	struct sw_gpio *sw_gpio_entry=platform_get_drvdata(dev);
+
+#ifdef GPIO_SUNXI_DEBUGFS
+	gpio_sw_classdev_unregister(&sw_gpio_entry->class);
+#endif
+
+	kfree(sw_gpio_entry->class.item);
+	kfree(sw_gpio_entry);
+	return 0;
+}
+
+
+static int sw_gpio_init_all(struct gpio_config *pcfg)
+{
+	int value;
+
+	if(GPIO_DATA_DEFAULT != pcfg->data)
+		value = pcfg->data ? 1 : 0;
+	else
+		value = 0;
+	
+	if(pcfg->mul_sel == 1)
+		gpio_direction_output(pcfg->gpio, value);
+	else if(pcfg->mul_sel == 0)
+		gpio_direction_input(pcfg->gpio);
+	else
+		printk("gpio %d set to wrong direction\n",pcfg->gpio);
+
+	if(GPIO_PULL_DEFAULT != pcfg->pull)
+		sw_gpio_setpull(pcfg->gpio, pcfg->pull);
+
+	if(GPIO_DRVLVL_DEFAULT != pcfg->drv_level)
+		sw_gpio_setdrvlevel(pcfg->gpio, pcfg->drv_level);
+	
+	return 0;
+}
+
 static int __devinit gpio_sw_probe(struct platform_device *dev)
 {
 	struct sw_gpio				*sw_gpio_entry;
 	struct sw_gpio_pd			*pdata = dev->dev.platform_data;
-	int							ret;
-	unsigned long				flags;
 	script_item_value_type_e	type;
 	char io_area[16];
+#ifdef GPIO_SUNXI_DEBUGFS
+	int	ret;
+	unsigned long	flags;
+#endif
 
 	sw_gpio_entry = kzalloc(sizeof(struct sw_gpio), GFP_KERNEL);
 	if(!sw_gpio_entry)
 		return -ENOMEM;
+	
 	sw_gpio_entry->class.item = \
 	   	kzalloc(sizeof(script_item_u), GFP_KERNEL);
+	
 	type = script_get_item("gpio_para", pdata->name, sw_gpio_entry->class.item);
 	if(SCIRPT_ITEM_VALUE_TYPE_PIO != type){
 		printk(KERN_ERR "get config err!\n");
 		return -ENOMEM;
 	}
 
+	if(0 != sw_gpio_init_all(&sw_gpio_entry->class.item->gpio)){
+		printk("%s sw_gpio_setall_range failed\n",pdata->name);
+		return -ENOMEM;
+	}
+
+#ifdef GPIO_SUNXI_DEBUGFS
 	ret = mapGpioToName(io_area,sw_gpio_entry->class.item->gpio.gpio);
 	printk("gpio name is %s, ret = %d\n",io_area, ret);
 
@@ -471,10 +513,7 @@ static int __devinit gpio_sw_probe(struct platform_device *dev)
 	sw_gpio_entry->class.gpio_sw_data_set = gpio_sw_data_set;
 	sw_gpio_entry->class.gpio_sw_data_get = gpio_sw_data_get;
 
-	if(0 != sw_gpio_setall_range(&sw_gpio_entry->class.item->gpio, 1)){
-		printk("%s sw_gpio_setall_range failed\n",pdata->name);
-		return -ENOMEM;
-	}
+
 	spin_unlock_irqrestore(&sw_gpio_entry->lock, flags);
 
 	ret = gpio_sw_classdev_register(&dev->dev, &sw_gpio_entry->class);
@@ -483,6 +522,13 @@ static int __devinit gpio_sw_probe(struct platform_device *dev)
 		kfree(sw_gpio_entry);
 		return -1;
 	}
+#endif
+
+	/* DK, free 40pins for linux gpio control 
+	 * This driver is only used for initial the 40pins to default state.
+	 */
+	gpio_free(sw_gpio_entry->class.item->gpio.gpio);
+	
 	return 0;
 }
 
@@ -519,6 +565,7 @@ static int __init gpio_sw_init(void)
 	script_item_u   *list = NULL;
 	script_item_value_type_e  type;
 
+#ifdef GPIO_SUNXI_DEBUGFS
 	gpio_sw_class = class_create(THIS_MODULE, "gpio_sw");
 	if (IS_ERR(gpio_sw_class))
 		return PTR_ERR(gpio_sw_class);
@@ -526,6 +573,7 @@ static int __init gpio_sw_init(void)
 	gpio_sw_class->suspend		= gpio_sw_suspend;
 	gpio_sw_class->resume		= gpio_sw_resume;
 	gpio_sw_class->dev_attrs 	= gpio_sw_class_attrs;
+#endif
 
 	type = script_get_item("gpio_para", "gpio_used", &val);
 	if(SCIRPT_ITEM_VALUE_TYPE_INT != type){
@@ -622,7 +670,10 @@ static void __exit gpio_sw_exit(void)
 		gpio_free(list[i].gpio.gpio);
 	}
 
+#ifdef GPIO_SUNXI_DEBUGFS
 	class_destroy(gpio_sw_class);
+#endif
+
 EXIT_END:
 	printk("gpio_exit finish !\n");
 }

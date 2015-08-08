@@ -263,6 +263,116 @@ static ssize_t gpio_direction_store(struct device *dev,
 static /* const */ DEVICE_ATTR(direction, 0644,
 		gpio_direction_show, gpio_direction_store);
 
+/* DK add gpio pull interface */
+static ssize_t gpio_pull_show(struct device *dev,
+		struct device_attribute *attr, char *buf)
+{
+	const struct gpio_desc *desc = dev_get_drvdata(dev);
+	unsigned gpio = desc - gpio_desc;
+	ssize_t status;
+	int value;
+
+	mutex_lock(&sysfs_lock);
+
+	if (!test_bit(FLAG_EXPORT, &desc->flags))
+		status = -EIO;
+	else {
+		value = sw_gpio_getpull(gpio);
+
+	    if (value == 0)
+		    status = sprintf(buf, "disable\n");
+	    else if (value == 1)
+		    status = sprintf(buf, "up\n");
+	    else if (value == 2)
+		    status = sprintf(buf, "down\n");
+	    else
+		    status = sprintf(buf, "unknown\n");
+	}
+	
+	mutex_unlock(&sysfs_lock);
+
+	return status;
+}
+
+static ssize_t gpio_pull_store(struct device *dev,
+		struct device_attribute *attr, const char *buf, size_t size)
+{
+	const struct gpio_desc *desc = dev_get_drvdata(dev);
+	unsigned gpio = desc - gpio_desc;
+	ssize_t status;
+
+	mutex_lock(&sysfs_lock);
+
+	if (!test_bit(FLAG_EXPORT, &desc->flags))
+		status = -EIO;
+	else if (sysfs_streq(buf, "disable"))
+		status = sw_gpio_setpull(gpio, 0);
+	else if (sysfs_streq(buf, "up"))
+		status = sw_gpio_setpull(gpio, 1);
+	else if (sysfs_streq(buf, "down"))
+		status = sw_gpio_setpull(gpio, 2);
+	else
+		status = -EINVAL;
+
+	mutex_unlock(&sysfs_lock);
+
+	return status ? : size;
+}
+
+static /* const */ DEVICE_ATTR(pull, 0644,
+		gpio_pull_show, gpio_pull_store);
+
+/* DK add gpio drive interface */
+static ssize_t gpio_drive_show(struct device *dev,
+		struct device_attribute *attr, char *buf)
+{
+	const struct gpio_desc *desc = dev_get_drvdata(dev);
+	unsigned gpio = desc - gpio_desc;
+	ssize_t status;
+	int value;
+
+	mutex_lock(&sysfs_lock);
+
+	if (!test_bit(FLAG_EXPORT, &desc->flags))
+		status = -EIO;
+	else {
+		value = sw_gpio_getdrvlevel(gpio);
+		status = sprintf(buf, "%d\n", value);
+	}
+	
+	mutex_unlock(&sysfs_lock);
+
+	return status;
+}
+
+static ssize_t gpio_drive_store(struct device *dev,
+		struct device_attribute *attr, const char *buf, size_t size)
+{
+	const struct gpio_desc *desc = dev_get_drvdata(dev);
+	unsigned gpio = desc - gpio_desc;
+	ssize_t status;
+	long value;
+
+	mutex_lock(&sysfs_lock);
+
+	if (!test_bit(FLAG_EXPORT, &desc->flags))
+		status = -EIO;
+	else {
+		status = strict_strtol(buf, 0, &value);
+		if (status == 0) {
+			sw_gpio_setdrvlevel(gpio, value);
+			status = size;
+		}
+	}
+
+	mutex_unlock(&sysfs_lock);
+
+	return status ? : size;
+}
+
+static /* const */ DEVICE_ATTR(drive, 0644,
+		gpio_drive_show, gpio_drive_store);
+
 static ssize_t gpio_value_show(struct device *dev,
 		struct device_attribute *attr, char *buf)
 {
@@ -546,6 +656,8 @@ static const DEVICE_ATTR(active_low, 0644,
 static const struct attribute *gpio_attrs[] = {
 	&dev_attr_value.attr,
 	&dev_attr_active_low.attr,
+	&dev_attr_pull.attr,
+	&dev_attr_drive.attr,
 	NULL,
 };
 
@@ -1662,15 +1774,23 @@ static void gpiolib_dbg_show(struct seq_file *s, struct gpio_chip *chip)
 	unsigned		i;
 	unsigned		gpio = chip->base;
 	struct gpio_desc	*gdesc = &gpio_desc[gpio];
-	int			is_out;
+	int	is_out;
+	char gpio_name[16];
+	int ret;
 
 	for (i = 0; i < chip->ngpio; i++, gpio++, gdesc++) {
+
+		/* DK, show all gpio num
 		if (!test_bit(FLAG_REQUESTED, &gdesc->flags))
 			continue;
+		*/
 
+		/* DK, print gpio name */
+		ret = sw_gpio_to_name(gpio, gpio_name);
+		
 		is_out = test_bit(FLAG_IS_OUT, &gdesc->flags);
-		seq_printf(s, " gpio-%-3d (%-20.20s) %s %s",
-			gpio, gdesc->label,
+		seq_printf(s, " gpio-%-3d %s (%-20.20s) %s %s",
+			gpio, gpio_name, gdesc->label,
 			is_out ? "out" : "in ",
 			chip->get
 				? (chip->get(chip, i) ? "hi" : "lo")
