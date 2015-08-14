@@ -1050,10 +1050,8 @@ static inline bool sw_is_console_port(struct uart_port *port)
 	return port->cons && port->cons->index == port->line;
 }
 
-static int sw_uart_request_resource(struct sw_uart_port* sw_uport)
+static int sw_uart_request_gpio(struct sw_uart_port *sw_uport)
 {
-	struct uart_port *port = &sw_uport->port;
-	char clk_name[16] = {0};
 	int ret = -1;
 	struct gpio_config *gpio;
 	char* ioname[8] = {"tx", "rx", "cts", "rts",
@@ -1067,8 +1065,37 @@ static int sw_uart_request_resource(struct sw_uart_port* sw_uport)
 		ret = gpio_request(gpio->gpio, ioname[i]);
 		if (unlikely(ret)) {
 			SERIAL_MSG("uart%d request %s failed\n", sw_uport->id, ioname[i]);
-			goto fail;
+			return ret;
 		}
+	}
+
+	return 0;
+}
+
+static int sw_uart_release_gpio(struct sw_uart_port *sw_uport)
+{
+	struct gpio_config *gpio;
+	u32 i;
+	
+	/* request io but don't configure them */
+	for (i=0; i<sw_uport->pdata->io_num; i++) {
+		gpio = &sw_uport->pdata->uart_io[i];
+		gpio_free(gpio->gpio);
+	}
+
+	return 0;
+}
+
+static int sw_uart_request_resource(struct sw_uart_port* sw_uport)
+{
+	struct uart_port *port = &sw_uport->port;
+	char clk_name[16] = {0};
+	int ret = -1;
+
+	ret = sw_uart_request_gpio(sw_uport);
+	if (unlikely(ret)) {
+		SERIAL_MSG("uart%d request gpio failed\n", sw_uport->id);
+		goto fail;
 	}
 
 	/* pclk */
@@ -1077,7 +1104,7 @@ static int sw_uart_request_resource(struct sw_uart_port* sw_uport)
 	if (IS_ERR(sw_uport->pclk)) {
 		ret = PTR_ERR(sw_uport->pclk);
 		SERIAL_MSG("uart%d get pclk failed\n", sw_uport->id);
-		goto free_gpio;
+		goto fail;
 	}
 	clk_disable(sw_uport->pclk);
 	sprintf(clk_name, "mod_uart%d", sw_uport->id);
@@ -1096,11 +1123,7 @@ static int sw_uart_request_resource(struct sw_uart_port* sw_uport)
 	#endif
 
 	return 0;
-free_gpio:
-	for (i=0; i<sw_uport->pdata->io_num; i++) {
-		gpio = &sw_uport->pdata->uart_io[i];
-		gpio_free(gpio->gpio);
-	}
+
 free_pclk:
 	clk_put(sw_uport->pclk);
 fail:
@@ -1109,9 +1132,6 @@ fail:
 
 static int sw_uart_release_resource(struct sw_uart_port* sw_uport)
 {
-	struct gpio_config *gpio;
-	u32 i;
-
 	SERIAL_DBG("put system resource(clk & IO)\n");
 
 	#ifdef CONFIG_SW_UART_DUMP_DATA
@@ -1124,11 +1144,7 @@ static int sw_uart_release_resource(struct sw_uart_port* sw_uport)
 	clk_disable(sw_uport->pclk);
 	clk_put(sw_uport->pclk);
 
-	/* request io but don't configure them */
-	for (i=0; i<sw_uport->pdata->io_num; i++) {
-		gpio = &sw_uport->pdata->uart_io[i];
-		gpio_free(gpio->gpio);
-	}
+	sw_uart_release_gpio(sw_uport);
 
 	return 0;
 }
@@ -1252,10 +1268,17 @@ static int __devinit sw_uart_probe(struct platform_device *pdev)
 	}
 #endif
 
+	ret = uart_add_one_port(&sw_uart_driver, port);
+	if(ret){
+		SERIAL_MSG("add port(id=%d) error\n", id);
+		return ret;
+	}
 
-	SERIAL_DBG("add uart%d port, port_type %d, uartclk %d\n",
-			id, port->type, port->uartclk);
-	return uart_add_one_port(&sw_uart_driver, port);
+	//free uart_2 gpio for 40pin userspace control
+	if(id == 2 || id == 5)
+		sw_uart_release_gpio(sw_uport);
+	
+	return 0;
 }
 
 static int __devexit sw_uart_remove(struct platform_device *pdev)

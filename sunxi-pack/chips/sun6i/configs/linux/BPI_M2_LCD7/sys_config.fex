@@ -271,7 +271,7 @@ twi_scl         = port:PH16<2><default><default><default>
 twi_sda         = port:PH17<2><default><default><default>
 
 [twi2_para]
-twi_used        = 0
+twi_used        = 1
 twi_scl         = port:PH18<2><default><default><default>
 twi_sda         = port:PH19<2><default><default><default>
 
@@ -305,7 +305,7 @@ uart_cts        = port:PA07<4><1><default><default>
 ;uart_ring      = port:PA03<4><1><default><default>
 
 [uart_para2]
-uart_used       = 0
+uart_used       = 1
 uart_port       = 2
 uart_type       = 4
 uart_tx         = port:PG06<2><1><default><default>
@@ -332,7 +332,7 @@ uart_rts        = port:PB04<3><1><default><default>
 uart_cts        = port:PB00<3><1><default><default>
 
 [uart_para5]
-uart_used       = 0
+uart_used       = 1
 uart_port       = 5
 uart_type       = 4
 uart_tx         = port:PE04<3><1><default><default>
@@ -342,20 +342,21 @@ uart_cts        = port:PE07<3><1><default><default>
 
 ;----------------------------------------------------------------------------------
 ;spi configuration
+;bus_num must be set as the same as spi number 
 ;----------------------------------------------------------------------------------
 [spi0_para]
 spi_used       = 0
 spi_cs_bitmap  = 1
-spi_cs0        = port:PC27<3><1><default><default>
+spi_cs0        = port:PC27<3><default><default><default>
 spi_sclk       = port:PC02<3><default><default><default>
 spi_mosi       = port:PC00<3><default><default><default>
 spi_miso       = port:PC01<3><default><default><default>
 
 [spi1_para]
-spi_used       = 0
-spi_cs_bitmap  = 1
-spi_cs1        = port:PG12<2><1><default><default>
-spi_cs0        = port:PG13<2><1><default><default>
+spi_used       = 1
+spi_cs_bitmap  = 3
+spi_cs1        = port:PG12<2><default><default><default>
+spi_cs0        = port:PG13<2><default><default><default>
 spi_sclk       = port:PG14<2><default><default><default>
 spi_mosi       = port:PG15<2><default><default><default>
 spi_miso       = port:PG16<2><default><default><default>
@@ -376,6 +377,27 @@ spi_sclk       = port:PA22<4><default><default><default>
 spi_mosi       = port:PA23<4><default><default><default>
 spi_miso       = port:PA24<4><default><default><default>
 spi_cs1        = port:PA25<4><default><default><default>
+
+[spi_devices]
+spi_dev_num = 2
+
+[spi_board0]
+modalias = "spidev"
+max_speed_hz = 12000000
+bus_num = 1
+chip_select = 0
+mode = 3
+full_duplex = 0
+manual_cs = 0
+
+[spi_board1]
+modalias = "spidev"
+max_speed_hz = 12000000
+bus_num = 1
+chip_select = 1
+mode = 3
+full_duplex = 0
+manual_cs = 0
 
 ;----------------------------------------------------------------------------------
 ;resistance tp configuration
@@ -743,45 +765,42 @@ vip_dev1_af_pwdn         =
 
 [vip1_para]
 
-vip_used                 = 0
+vip_used                 = 1
 vip_mode                 = 0
 vip_dev_qty              = 1
 vip_csi_pck              = port:PE00<2><default><default><default>
 vip_csi_mck              = port:PE01<2><default><default><default>
 vip_csi_hsync            = port:PE02<2><default><default><default>
 vip_csi_vsync            = port:PE03<2><default><default><default>
-vip_csi_d0               = port:PE04<2><default><default><default>
-vip_csi_d1               = port:PE05<2><default><default><default>
-vip_csi_d2               = port:PE06<2><default><default><default>
-vip_csi_d3               = port:PE07<2><default><default><default>
-vip_csi_d4               = port:PE08<2><default><default><default>
-vip_csi_d5               = port:PE09<2><default><default><default>
-vip_csi_d6               = port:PE10<2><default><default><default>
-vip_csi_d7               = port:PE11<2><default><default><default>
-vip_csi_d8               = port:PE12<2><default><default><default>
-vip_csi_d9               = port:PE13<2><default><default><default>
-vip_csi_d10              = port:PE14<2><default><default><default>
-vip_csi_d11              = port:PE15<2><default><default><default>
+vip_csi_d0               = port:PE08<2><default><default><default>
+vip_csi_d1               = port:PE09<2><default><default><default>
+vip_csi_d2               = port:PE10<2><default><default><default>
+vip_csi_d3               = port:PE11<2><default><default><default>
+vip_csi_d4               = port:PE12<2><default><default><default>
+vip_csi_d5               = port:PE13<2><default><default><default>
+vip_csi_d6               = port:PE14<2><default><default><default>
+vip_csi_d7               = port:PE15<2><default><default><default>
 
-vip_dev0_mname           = "ov5647"
+
+vip_dev0_mname           = "ov5640"
 vip_dev0_twi_id          = 0
-vip_dev0_twi_addr        = 0x6c
+vip_dev0_twi_addr        = 0x78
 vip_dev0_isp_used        = 0
 vip_dev0_fmt			 = 0
 vip_dev0_stby_mode       = 0
 vip_dev0_vflip           = 0
 vip_dev0_hflip           = 0
-vip_dev0_iovdd           = "axp22_eldo3"
+vip_dev0_iovdd           = "axp22_aldo1"
 vip_dev0_iovdd_vol       = 2800000
-vip_dev0_avdd            = "axp22_eldo3"
-vip_dev0_avdd_vol        = 2800000
-vip_dev0_dvdd            = "axp22_dldo4"
-vip_dev0_dvdd_vol        = 1500000
-vip_dev0_afvdd           = "axp22_eldo2"
-vip_dev0_afvdd_vol       = 2800000
-vip_dev0_power_en        = port:PA23<1><default><default><0>
-vip_dev0_reset           = port:PA21<1><default><default><0>
-vip_dev0_pwdn            = port:PA22<1><default><default><1>
+vip_dev0_avdd            = ""
+vip_dev0_avdd_vol        = 
+vip_dev0_dvdd            = ""
+vip_dev0_dvdd_vol        = 
+vip_dev0_afvdd           = ""
+vip_dev0_afvdd_vol       = 
+vip_dev0_power_en        = port:PG18<1><default><default><1>
+vip_dev0_reset           = port:PH26<1><default><default><0>
+vip_dev0_pwdn            = port:PH27<1><default><default><1>
 vip_dev0_flash_en        =
 vip_dev0_flash_mode      =
 vip_dev0_af_pwdn         =
@@ -800,14 +819,14 @@ vip_dev1_isp_used        = 0
 vip_dev1_fmt             = 1
 vip_dev1_vflip           = 0
 vip_dev1_hflip           = 0
-vip_dev1_iovdd           = "axp22_eldo3"
-vip_dev1_iovdd_vol       = 2800000
-vip_dev1_avdd            = "axp22_dldo4"
-vip_dev1_avdd_vol        = 2800000
-vip_dev1_dvdd            = "axp22_eldo2"
-vip_dev1_dvdd_vol        = 1500000
+vip_dev1_iovdd           = ""
+vip_dev1_iovdd_vol       = 
+vip_dev1_avdd            = ""
+vip_dev1_avdd_vol        = 
+vip_dev1_dvdd            = ""
+vip_dev1_dvdd_vol        = 
 vip_dev1_afvdd           = ""
-vip_dev1_afvdd_vol       = 2800000
+vip_dev1_afvdd_vol       = 
 vip_dev1_power_en        =
 vip_dev1_reset           = 
 vip_dev1_pwdn            = 

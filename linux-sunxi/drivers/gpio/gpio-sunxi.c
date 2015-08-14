@@ -37,6 +37,8 @@
 DECLARE_RWSEM(gpio_sw_list_lock);
 LIST_HEAD(gpio_sw_list);
 
+#define GPIO_SUNXI_DEBUGFS
+
 #ifdef GPIO_SUNXI_DEBUGFS
 static struct class *gpio_sw_class;
 #endif

@@ -271,7 +271,7 @@ twi_scl         = port:PH16<2><default><default><default>
 twi_sda         = port:PH17<2><default><default><default>
 
 [twi2_para]
-twi_used        = 0
+twi_used        = 1
 twi_scl         = port:PH18<2><default><default><default>
 twi_sda         = port:PH19<2><default><default><default>
 
@@ -305,7 +305,7 @@ uart_cts        = port:PA07<4><1><default><default>
 ;uart_ring      = port:PA03<4><1><default><default>
 
 [uart_para2]
-uart_used       = 0
+uart_used       = 1
 uart_port       = 2
 uart_type       = 4
 uart_tx         = port:PG06<2><1><default><default>
@@ -332,7 +332,7 @@ uart_rts        = port:PB04<3><1><default><default>
 uart_cts        = port:PB00<3><1><default><default>
 
 [uart_para5]
-uart_used       = 0
+uart_used       = 1
 uart_port       = 5
 uart_type       = 4
 uart_tx         = port:PE04<3><1><default><default>
@@ -342,20 +342,21 @@ uart_cts        = port:PE07<3><1><default><default>
 
 ;----------------------------------------------------------------------------------
 ;spi configuration
+;bus_num must be set as the same as spi number 
 ;----------------------------------------------------------------------------------
 [spi0_para]
 spi_used       = 0
 spi_cs_bitmap  = 1
-spi_cs0        = port:PC27<3><1><default><default>
+spi_cs0        = port:PC27<3><default><default><default>
 spi_sclk       = port:PC02<3><default><default><default>
 spi_mosi       = port:PC00<3><default><default><default>
 spi_miso       = port:PC01<3><default><default><default>
 
 [spi1_para]
-spi_used       = 0
-spi_cs_bitmap  = 1
-spi_cs1        = port:PG12<2><1><default><default>
-spi_cs0        = port:PG13<2><1><default><default>
+spi_used       = 1
+spi_cs_bitmap  = 3
+spi_cs1        = port:PG12<2><default><default><default>
+spi_cs0        = port:PG13<2><default><default><default>
 spi_sclk       = port:PG14<2><default><default><default>
 spi_mosi       = port:PG15<2><default><default><default>
 spi_miso       = port:PG16<2><default><default><default>
@@ -376,6 +377,27 @@ spi_sclk       = port:PA22<4><default><default><default>
 spi_mosi       = port:PA23<4><default><default><default>
 spi_miso       = port:PA24<4><default><default><default>
 spi_cs1        = port:PA25<4><default><default><default>
+
+[spi_devices]
+spi_dev_num = 2
+
+[spi_board0]
+modalias = "spidev"
+max_speed_hz = 12000000
+bus_num = 1
+chip_select = 0
+mode = 3
+full_duplex = 0
+manual_cs = 0
+
+[spi_board1]
+modalias = "spidev"
+max_speed_hz = 12000000
+bus_num = 1
+chip_select = 1
+mode = 3
+full_duplex = 0
+manual_cs = 0
 
 ;----------------------------------------------------------------------------------
 ;resistance tp configuration

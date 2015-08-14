@@ -30,6 +30,7 @@
 #define PIO_VBASE_EINT_R_PL	(RPIO_VBASE(0) + 0x200                )
 #define PIO_VBASE_EINT_R_PM	(RPIO_VBASE(0) + 0x220                )
 
+#ifdef DK
 /* port number for each pio */
 #define PA_NR			28
 #define PB_NR			8
@@ -47,10 +48,30 @@
 #define AXP_NR			5
 #endif /* CONFIG_AW_AXP22 */
 
+#else
+
+/* port number for each pio */
+#define PA_NR			32
+#define PB_NR			32
+#define PC_NR			32
+#define PD_NR			32
+#define PE_NR			32
+#define PF_NR			32
+#define PG_NR			32
+#define PH_NR			32
+/* for R-PORT PIO */
+#define PL_NR			32
+#define PM_NR			32
+#ifdef CONFIG_AW_AXP22
+/* for axp power PIO */
+#define AXP_NR			5
+#endif /* CONFIG_AW_AXP22 */
+
+#endif
 /*
  * base index for each pio
  */
-#define SUN6I_GPIO_SPACE	2 /* for debugging purposes so that failed if request extra gpio_nr */
+#define SUN6I_GPIO_SPACE	0 /* for debugging purposes so that failed if request extra gpio_nr */
 #define AW_GPIO_NEXT(gpio)	gpio##_NR_BASE + gpio##_NR + SUN6I_GPIO_SPACE
 enum sun6i_gpio_number {
 	PA_NR_BASE = 0,

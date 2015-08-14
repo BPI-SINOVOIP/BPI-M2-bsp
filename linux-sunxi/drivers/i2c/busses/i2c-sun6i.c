@@ -594,6 +594,21 @@ static void twi_release_gpio(struct sun6i_i2c *i2c)
 }
 #endif
 
+static void twi2_release_gpio(struct sun6i_i2c *i2c)
+{
+	int gpio_cnt, i;
+	script_item_u *list = NULL;
+	char twi_para[16] = {0};
+
+	printk("release twi2 gpio request for 40 pin userspace control\n");
+
+	sprintf(twi_para, "twi2_para");
+	gpio_cnt = script_get_pio_list(twi_para, &list);
+	for(i = 0; i < gpio_cnt; i++)
+		gpio_free(list[i].gpio.gpio);
+}
+
+
 /* function  */
 static int twi_start(void *base_addr, int bus_num)
 {
@@ -1370,6 +1385,10 @@ static int sun6i_i2c_probe(struct platform_device *pdev)
 			goto eadapt;
 	}
 #endif
+
+	//free twi2 gpio for 40pin userspace control
+	twi2_release_gpio(i2c);
+
 	pr_debug("I2C: %s: sun6i I2C adapter\n", dev_name(&i2c->adap.dev));
 	pr_debug("**********start************\n");
 	pr_debug("0x%x \n",readl(i2c->base_addr + 0x0c));

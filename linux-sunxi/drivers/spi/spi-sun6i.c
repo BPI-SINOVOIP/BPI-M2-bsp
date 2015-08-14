@@ -1592,6 +1592,10 @@ static int __init sun6i_spi_probe(struct platform_device *pdev)
 		goto err7;
 	}
 
+	/* free spi_1 gpio for 40pin userspace control*/
+	if(sspi->master->bus_num == 1)
+		sun6i_spi_release_gpio(sspi);
+
 	SPI_INF("allwinners SoC SPI Driver loaded for Bus SPI-%d with %d Slaves at most\n",
             pdev->id, master->num_chipselect);
 	SPI_INF("[spi-%d]: driver probe succeed, base %p, irq %d!\n", master->bus_num, sspi->base_addr, sspi->irq);
