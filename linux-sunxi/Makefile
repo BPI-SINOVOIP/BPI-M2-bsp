@@ -326,6 +326,9 @@ MAKEFLAGS += --include-dir=$(srctree)
 $(srctree)/scripts/Kbuild.include: ;
 include $(srctree)/scripts/Kbuild.include
 
+# GPU module
+GPU_MODULE = $(srctree)/modules/eurasia_km/eurasiacon/binary2_sunxi_android_release/target
+
 # Make variables (CC, etc...)
 
 AS		= $(CROSS_COMPILE)as
@@ -1122,6 +1125,8 @@ _modinst_:
 	fi
 	@cp -f $(objtree)/modules.order $(MODLIB)/
 	@cp -f $(objtree)/modules.builtin $(MODLIB)/
+	@mkdir -p $(MODLIB)/drivers/gpu
+	@cp $(GPU_MODULE)/*.ko $(MODLIB)/drivers/gpu/
 	$(Q)$(MAKE) -f $(srctree)/scripts/Makefile.modinst
 
 # This depmod is only for convenience to give the initial

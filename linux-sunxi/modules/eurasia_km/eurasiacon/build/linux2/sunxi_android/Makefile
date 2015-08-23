@@ -38,15 +38,15 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ### ###########################################################################
 
-ANDROID_ROOT = $(ANDROID_BUILD_TOP)
-TARGET_PRODUCT = fiber-a31st
-TARGET_DEVICE = $(TARGET_PRODUCT)
-DISCIMAGE =$(ANDROID_ROOT)/out/target/product/$(TARGET_PRODUCT)
-LICHEE_KDIR = &(ANDROID_ROOT)/../lichee
+#ANDROID_ROOT = $(ANDROID_BUILD_TOP)
+#TARGET_PRODUCT = fiber-a31st
+#TARGET_DEVICE = $(TARGET_PRODUCT)
+#DISCIMAGE =$(ANDROID_ROOT)/out/target/product/$(TARGET_PRODUCT)
+#LICHEE_KDIR = &(ANDROID_ROOT)/../lichee
 KERNELDIR = $(LICHEE_KDIR)
-TOOLCHAIN = $(LICHEE_KDIR)/buildroot/output/external-toolchain/
-CROSS_COMPILE := arm-linux-gnueabi-
-KERNEL_CROSS_COMPILE :=arm-linux-gnueabi-
+#TOOLCHAIN = $(LICHEE_KDIR)/buildroot/output/external-toolchain/
+CROSS_COMPILE := $(CROSS_COMPILE)
+KERNEL_CROSS_COMPILE := $(CROSS_COMPILE)
 ARCH=arm
 BUILD := release
 TOP = $(KERNELDIR)/modules/eurasia_km/

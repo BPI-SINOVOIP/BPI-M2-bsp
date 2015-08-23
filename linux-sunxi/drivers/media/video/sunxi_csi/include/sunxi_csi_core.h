@@ -356,12 +356,7 @@ struct ccm_config {
 	int stby_mode;
 	int interface;
 	int flash_pol;		
-//	user_gpio_set_t reset_io;
-//	user_gpio_set_t standby_io;
-//	user_gpio_set_t power_io;
-//	user_gpio_set_t flash_io;
-//	user_gpio_set_t af_power_io;
-	//modified to 33
+
 	struct gpio_config reset_io;
 	struct gpio_config standby_io;
 	struct gpio_config power_io;

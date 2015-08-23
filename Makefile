@@ -17,6 +17,8 @@ K_O_PATH=$(BUILD_PATH)/$(BOARD)/$(KERNEL_CONFIG)-kernel
 U_CONFIG_H=$(U_O_PATH)/include/config.h
 K_DOT_CONFIG=$(K_O_PATH)/.config
 
+LICHEE_KDIR=$(CURDIR)/linux-sunxi
+
 all: bsp
 
 ## DK, if u-boot and kernel KBUILD_OUT issue fix, u-boot-clean and kernel-clean
@@ -56,6 +58,7 @@ kernel: $(K_DOT_CONFIG)
 	#$(Q)$(MAKE) -C linux-sunxi O=$(K_O_PATH) ARCH=arm CROSS_COMPILE=${CROSS_COMPILE} -j$J INSTALL_MOD_PATH=output modules_install
 	#$(Q)$(MAKE) -C linux-sunxi O=$(K_O_PATH) ARCH=arm CROSS_COMPILE=${CROSS_COMPILE} -j$J headers_install
 	$(Q)$(MAKE) -C linux-sunxi ARCH=arm CROSS_COMPILE=${CROSS_COMPILE} -j$J INSTALL_MOD_PATH=output uImage modules
+	$(Q)$(MAKE) -C linux-sunxi/modules/eurasia_km/eurasiacon/build/linux2/sunxi_android CROSS_COMPILE=$(CROSS_COMPILE) ARCH=arm LICHEE_KDIR=${LICHEE_KDIR}
 	$(Q)$(MAKE) -C linux-sunxi ARCH=arm CROSS_COMPILE=${CROSS_COMPILE} -j$J INSTALL_MOD_PATH=output modules_install
 	$(Q)$(MAKE) -C linux-sunxi ARCH=arm CROSS_COMPILE=${CROSS_COMPILE} -j$J headers_install
 	#cd $(K_O_PATH) && ${CROSS_COMPILE}objcopy -R .note.gnu.build-id -S -O binary vmlinux bImage
@@ -63,6 +66,7 @@ kernel: $(K_DOT_CONFIG)
 
 kernel-clean:
 	$(Q)$(MAKE) -C linux-sunxi/arch/arm/mach-sun6i/pm/standby ARCH=arm CROSS_COMPILE=${CROSS_COMPILE} KDIR=$(CURDIR)/linux-sunxi clean
+	$(Q)$(MAKE) -C linux-sunxi/modules/eurasia_km/eurasiacon/build/linux2/sunxi_android CROSS_COMPILE=$(CROSS_COMPILE) ARCH=arm LICHEE_KDIR=${LICHEE_KDIR} clobber
 	$(Q)$(MAKE) -C linux-sunxi ARCH=arm CROSS_COMPILE=${CROSS_COMPILE} -j$J distclean
 
 kernel-config: $(K_DOT_CONFIG)

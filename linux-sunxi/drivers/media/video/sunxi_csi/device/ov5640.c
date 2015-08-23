@@ -34,10 +34,11 @@ MODULE_LICENSE("GPL");
 #else
 #define csi_dev_dbg(x,arg...) 
 #endif
-#define csi_dev_err(x,arg...) printk("[CSI_ERR][OV5640]"x,##arg)
+
+#define csi_dev_err(x,arg...) printk(KERN_ERR "[CSI_ERR][OV5640]"x,##arg)
 #define csi_dev_print(x,arg...) printk("[CSI][OV5640]"x,##arg)
 
-#define MCLK (24*1000*1000)
+#define MCLK 		(24*1000*1000)
 #define VREF_POL	CSI_HIGH
 #define HREF_POL	CSI_HIGH
 #define CLK_POL		CSI_RISING
@@ -93,15 +94,15 @@ MODULE_LICENSE("GPL");
 #define SXGA_HEIGHT		960
 #define HD720_WIDTH 	1280
 #define HD720_HEIGHT	720
-#define XGA_WIDTH			1024
+#define XGA_WIDTH		1024
 #define XGA_HEIGHT 		768
 #define SVGA_WIDTH		800
 #define SVGA_HEIGHT 	600
-#define VGA_WIDTH			640
+#define VGA_WIDTH		640
 #define VGA_HEIGHT		480
 #define QVGA_WIDTH		320
 #define QVGA_HEIGHT		240
-#define CIF_WIDTH			352
+#define CIF_WIDTH		352
 #define CIF_HEIGHT		288
 #define QCIF_WIDTH		176
 #define	QCIF_HEIGHT		144
@@ -1297,7 +1298,7 @@ static struct regval_list sensor_vga_regs[] = { //VGA:  640*480
 //	//pll and clock setting
 	{{0x30,0x34},{0x1a}},                
 #ifndef CSI_VER_FOR_FPGA
-	{{0x30,0x35},{0x11}},                             
+	{{0x30,0x35},{0x21}}, //30fps                            
 #else
 	{{0x30,0x35},{0x21}},                            
 #endif    
@@ -4133,7 +4134,8 @@ static int sensor_init(struct v4l2_subdev *sd, u32 val)
 	info->af_mode = V4L2_AF_FIXED;
 	info->af_ctrl = V4L2_AF_RELEASE;
 	info->tpf.numerator = 1;            
-	info->tpf.denominator = 30;    /* 30fps */    
+	info->tpf.denominator = 30;    /* 30fps */   
+	info->capture_mode = V4L2_MODE_VIDEO;
 	
 	ret = sensor_write_array(sd, sensor_default_regs , ARRAY_SIZE(sensor_default_regs));	
 	if(ret < 0) {
@@ -4356,16 +4358,10 @@ static struct sensor_win_size {
 static int sensor_enum_fmt(struct v4l2_subdev *sd, unsigned index,
                  enum v4l2_mbus_pixelcode *code)//linux-3.0
 {
-//	struct sensor_format_struct *ofmt;
-
-	if (index >= N_FMTS)//linux-3.0
+	if (index >= N_FMTS)
 		return -EINVAL;
 
 	*code = sensor_formats[index].mbus_code;//linux-3.0
-//	ofmt = sensor_formats + fmt->index;
-//	fmt->flags = 0;
-//	strcpy(fmt->description, ofmt->desc);
-//	fmt->pixelformat = ofmt->pixelformat;
 	return 0;
 }
 
@@ -4378,7 +4374,6 @@ static int sensor_try_fmt_internal(struct v4l2_subdev *sd,
 {
 	int index;
 	struct sensor_win_size *wsize;
-//	struct v4l2_pix_format *pix = &fmt->fmt.pix;//linux-3.0
 
 	for (index = 0; index < N_FMTS; index++)
 		if (sensor_formats[index].mbus_code == fmt->code)//linux-3.0
@@ -4582,6 +4577,7 @@ static int sensor_s_fmt(struct v4l2_subdev *sd,
 	unsigned char rdval;
 	
 	csi_dev_dbg("sensor_s_fmt\n");
+	csi_dev_dbg("sensor_s_fmt, info->capture_mode=%d\n", info->capture_mode);
 	
 	sensor_write_array(sd, sensor_oe_disable_regs , ARRAY_SIZE(sensor_oe_disable_regs));
 	
@@ -4624,18 +4620,6 @@ static int sensor_s_fmt(struct v4l2_subdev *sd,
 			csi_dev_err("sensor_s_autowb off err when capturing image!\n");
 	}
 	
-
-#if 0	
-	if(info->low_speed == 1) {
-		//power down
-		csi_dev_print("power down\n");
-		ret = sensor_write_im(sd, 0x3008, 0x42);
-		if(ret<0) {
-			csi_dev_err("power down error at sensor_s_parm!\n");
-			return ret;
-		}
-	}
-#endif	
 	
 	sensor_write_array(sd, sensor_fmt->regs , sensor_fmt->regs_size);
 	
@@ -4660,19 +4644,8 @@ static int sensor_s_fmt(struct v4l2_subdev *sd,
 	
 	csi_dev_print("s_fmt set width = %d, height = %d\n",wsize->width,wsize->height);
 
-#if 0	
-	if(info->low_speed == 1) {
-		//release power down
-		csi_dev_print("release power down\n");
-		ret = sensor_write_im(sd, 0x3008, 0x02);
-		if(ret<0) {
-			csi_dev_err("release power down error at sensor_s_parm!\n");
-			return ret;
-		}
-	}
-#endif	
-
-	if(info->capture_mode == V4L2_MODE_VIDEO || info->capture_mode == V4L2_MODE_PREVIEW)
+	if(info->capture_mode == V4L2_MODE_VIDEO || 
+		info->capture_mode == V4L2_MODE_PREVIEW)
 	{
 		//video
     	sensor_s_fps(sd);
@@ -4719,15 +4692,6 @@ static int sensor_s_fmt(struct v4l2_subdev *sd,
 		
 		if(info->af_mode != V4L2_AF_FIXED) {
 
-#if 0
-			if(info->af_mode != V4L2_AF_TOUCH && info->af_mode != V4L2_AF_FACE) {				
-				ret = sensor_s_relaunch_af_zone(sd);	//set af zone to default zone
-				if (ret < 0) {
-					csi_dev_err("sensor_s_relaunch_af_zone err !\n");
-					return ret;
-				}	
-			}
-#endif
 
 #ifdef CONTINUEOUS_AF			
 			if(info->af_mode != V4L2_AF_INFINITY) {
@@ -4740,15 +4704,14 @@ static int sensor_s_fmt(struct v4l2_subdev *sd,
 #endif
 		}
     
-    if(info->capture_mode == V4L2_MODE_VIDEO) {
-  		sensor_s_sharpness_auto(sd); //sharpness auto
-  		sensor_s_denoise_auto(sd);
-  	} else if(info->capture_mode == V4L2_MODE_PREVIEW) {
-  	  sensor_s_sharpness_value(sd,SHARPNESS); //sharpness fix value
-  	  sensor_s_denoise_value(sd,8);
-  	}
-    
-		  
+    	if(info->capture_mode == V4L2_MODE_VIDEO) {
+  			sensor_s_sharpness_auto(sd); //sharpness auto
+  			sensor_s_denoise_auto(sd);
+  		} else if(info->capture_mode == V4L2_MODE_PREVIEW) {
+  	    	sensor_s_sharpness_value(sd,SHARPNESS); //sharpness fix value
+  	    	sensor_s_denoise_value(sd,8);
+  		}  
+		
 		if(info->low_speed == 1) {
 			if(info->preview_first_flag == 1) {
 				info->preview_first_flag = 0;
@@ -4758,7 +4721,8 @@ static int sensor_s_fmt(struct v4l2_subdev *sd,
 			}		
 		}
 		msleep(200);
-	} else {
+	}
+	else {
 		//capture image
 		sensor_s_sharpness_value(sd,SHARPNESS); //sharpness 0x0
 		//sensor_s_sharpness_auto(sd); //sharpness auto
@@ -4772,26 +4736,9 @@ static int sensor_s_fmt(struct v4l2_subdev *sd,
 		msleep(200);
 	}
 	
-
-#if DEV_DBG_EN == 1	
-	{
-		int i;
-		struct regval_list dbg_regs[] = {
-			{{0x30,0x34},{0xee}},
-			{{0x30,0x35},{0xee}},
-			{{0x30,0x36},{0xee}},
-			{{0x30,0x37},{0xee}},
-			{{0x31,0x08},{0xee}},
-			{{0x38,0x24},{0xee}},
-		};
-		for(i=0;i<6;i++) {
-			sensor_read(sd,dbg_regs[i].reg_num,dbg_regs[i].value);
-			csi_dev_print("address 0x%2x%2x = %4x",dbg_regs[i].reg_num[0],dbg_regs[i].reg_num[1],dbg_regs[i].value[0]);
-		}
-	}
-#endif
   sensor_write_array(sd, sensor_oe_enable_regs , ARRAY_SIZE(sensor_oe_enable_regs));
-	return 0;
+
+  return 0;
 }
 
 /*
@@ -4823,7 +4770,7 @@ static int sensor_s_parm(struct v4l2_subdev *sd, struct v4l2_streamparm *parms)
 	struct sensor_info *info = to_state(sd);
 	unsigned char div;
 	
-	csi_dev_dbg("sensor_s_parm\n");
+	csi_dev_dbg("########## sensor_s_parm\n");
 	
 	if (parms->type != V4L2_BUF_TYPE_VIDEO_CAPTURE)
 	  {
@@ -5056,7 +5003,6 @@ static int sensor_probe(struct i2c_client *client,
 {
 	struct v4l2_subdev *sd;
 	struct sensor_info *info;
-//	int ret;
   
   csi_dev_dbg("sensor_probe");
 	info = kzalloc(sizeof(struct sensor_info), GFP_KERNEL);

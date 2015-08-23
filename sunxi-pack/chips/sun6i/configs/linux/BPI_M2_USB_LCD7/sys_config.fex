@@ -276,7 +276,7 @@ twi_scl         = port:PH18<2><default><default><default>
 twi_sda         = port:PH19<2><default><default><default>
 
 [twi3_para]
-twi_used        = 0
+twi_used        = 1
 twi_scl         = port:PB05<4><default><default><default>
 twi_sda         = port:PB06<4><default><default><default>
 
@@ -786,7 +786,7 @@ vip_dev0_mname           = "ov5640"
 vip_dev0_twi_id          = 0
 vip_dev0_twi_addr        = 0x78
 vip_dev0_isp_used        = 0
-vip_dev0_fmt			 = 0
+vip_dev0_fmt		 = 0
 vip_dev0_stby_mode       = 0
 vip_dev0_vflip           = 0
 vip_dev0_hflip           = 0
@@ -858,6 +858,95 @@ tvp5150                 = 0
 s5k4ec                  = 0
 ov5650_mv9335           = 0
 siv121d                 = 0
+
+;--------------------------------------------------------------------------------
+;csi gpio configuration
+;csi_if: 0:hv_8bit 1:hv_16bit 2:hv_24bit 3:bt656 1ch 4:bt656 2ch 5:bt656 4ch
+;csi_mode: 0:sample one csi to one buffer 1:sample two csi to one buffer
+;csi_dev_qty: The quantity of devices linked to csi interface
+;csi_vflip: flip in vertical direction 0:disable 1:enable
+;csi_hflip: flip in horizontal direction 0:disable 1:enable
+;csi_stby_mode: 0:not shut down power at standby 1:shut down power at standby
+;csi_iovdd: camera module io power , pmu power supply
+;csi_avdd:	camera module analog power , pmu power supply
+;csi_dvdd:	camera module core power , pmu power supply
+;pmu_ldo3:  fill "axp20_pll"
+;pmu_ldo4:  fill "axp20_hdmi"
+;fill "" when not using any pmu power supply
+;csi_flash_pol: the active polority of the flash light IO 0:low active 1:high active
+;--------------------------------------------------------------------------------
+
+[csi0_para]
+csi_used            = 0
+
+csi_dev_qty         = 1
+csi_stby_mode       = 0
+csi_mname           = "gc0308"
+csi_if              = 0
+csi_iovdd           = ""
+csi_avdd            = ""
+csi_dvdd            = ""
+csi_vol_iovdd       = 
+csi_vol_dvdd        = 
+csi_vol_avdd        = 
+csi_vflip           = 0
+csi_hflip           = 0
+csi_flash_pol       = 0
+csi_facing          = 0
+
+csi_twi_id          = 1
+csi_twi_addr        = 0x42
+csi_pck             = port:PE00<3><default><default><default>
+csi_ck              = port:PE01<3><default><default><default>
+csi_hsync           = port:PE02<3><default><default><default>
+csi_vsync           = port:PE03<3><default><default><default>
+csi_d0              = port:PE04<3><default><default><default>
+csi_d1              = port:PE05<3><default><default><default>
+csi_d2              = port:PE06<3><default><default><default>
+csi_d3              = port:PE07<3><default><default><default>
+csi_d4              = port:PE08<3><default><default><default>
+csi_d5              = port:PE09<3><default><default><default>
+csi_d6              = port:PE10<3><default><default><default>
+csi_d7              = port:PE11<3><default><default><default>
+csi_reset           = port:PH13<1><default><default><0>
+csi_power_en        = 
+csi_stby            = port:PH16<1><default><default><0>
+
+[csi1_para]
+csi_used            = 1
+
+csi_dev_qty         = 1
+csi_stby_mode       = 0
+csi_mname           = "ov5640"
+csi_if              = 0
+csi_iovdd           = "axp22_aldo1"
+csi_avdd            = ""
+csi_dvdd            = ""
+csi_vol_iovdd       = 2800
+csi_vol_dvdd        = 
+csi_vol_avdd        = 
+csi_vflip           = 1
+csi_hflip           = 0
+csi_flash_pol       = 0
+csi_facing          = 1
+
+csi_twi_id          = 0
+csi_twi_addr        = 0x78
+csi_pck              = port:PE00<2><default><default><default>
+csi_mck              = port:PE01<2><default><default><default>
+csi_hsync            = port:PE02<2><default><default><default>
+csi_vsync            = port:PE03<2><default><default><default>
+csi_d0               = port:PE08<2><default><default><default>
+csi_d1               = port:PE09<2><default><default><default>
+csi_d2               = port:PE10<2><default><default><default>
+csi_d3               = port:PE11<2><default><default><default>
+csi_d4               = port:PE12<2><default><default><default>
+csi_d5               = port:PE13<2><default><default><default>
+csi_d6               = port:PE14<2><default><default><default>
+csi_d7               = port:PE15<2><default><default><default>
+csi_power_en         = port:PG18<1><default><default><1>
+csi_reset            = port:PH26<1><default><default><0>
+csi_stby            = port:PH27<1><default><default><1>
 
 ;--------------------------------------------------------------------------------
 ;tv configuration
@@ -1019,7 +1108,7 @@ usb_detect_type     = 0
 usb_id_gpio         =
 usb_det_vbus_gpio   =
 usb_drv_vbus_gpio   = 
-usb_restrict_gpio   = port:PH26<1><0><default><0>
+usb_restrict_gpio   = port:PC27<1><0><default><0>
 usb_host_init_state = 1
 usb_restric_flag    = 0
 usb_not_suspend     = 0
@@ -1289,7 +1378,7 @@ i2s_din             = port:PB07<2><1><default><default>
 ;rx_data_mode 		:0: 16bit linear PCM; 1: 8bit linear PCM; 2: 8bit u-law; 3: 8bit a-law
 ;--------------------------------------------------------------------------------
 [pcm_para]
-pcm_used            = 1
+pcm_used            = 0
 pcm_channel         = 2
 pcm_master          = 4
 pcm_select          = 1
@@ -1313,7 +1402,7 @@ pcm_dout            = port:PG16<3><1><default><default>
 pcm_din             = port:PG15<3><1><default><default>
 
 [spdif_para]
-spdif_used          = 1
+spdif_used          = 0
 spdif_dout          = port:PH28<3><1><default><default>
 spdif_din           = port:PH27<3><1><default><default>
 
@@ -1335,7 +1424,7 @@ pa_double_used     = 0
 pa_double_vol      = 0x1f
 headphone_direct_used	= 0
 headphone_mute_used	= 0
-audio_pa_ctrl       	= port:PH24<1><default><default><0>
+audio_pa_ctrl       	= port:PH22<1><default><default><0>
 audio_mute_ctrl       	= 
 headset_mic_vol    = 6
 main_mic_vol       = 6
@@ -1358,7 +1447,7 @@ axp_0            = "axp22_dldo4"
 ;gpio configuration
 ;----------------------------------------------------------------------------------
 [boot_init_gpio]                    
-use                = 1
+use                = 0
 gpio_pin_1         = port:PH13<1><default><default><1>
 
 ;----------------------------------------------------------------------------------                                   
