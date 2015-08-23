@@ -56,3 +56,11 @@ Step 2.Go to folder "Download", put the file(s) to 100MB of the SD Card whit DD 
 Overview
 --------
 You may go to http://www.banana-pi.org to download Ubuntu15.04 images and burn them into the Sdcard to see the architecture.
+
+
+##Reference 
+[Building a Minimal System with BPI-M2] (http://forum.banana-pi.org/t/building-a-minimal-system-with-bpi-m2/324).
+
+
+
+
