@@ -85,7 +85,8 @@ create_linuxfs() {
 
 	## rootfs
 	mkdir -p "$rootfs"
-	gen_linuxfs "$rootfs"
+	#gen_linuxfs "$rootfs"
+	cp $LINUXFS_DIR/rootfs.ext4 $rootfs/rootfs.ext4
 
 	echo "Done."
 }
