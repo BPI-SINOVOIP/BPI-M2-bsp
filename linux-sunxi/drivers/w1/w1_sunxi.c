@@ -89,5 +89,5 @@ module_init(w1_sunxi_init);
 module_exit(w1_sunxi_exit);
 
 MODULE_DESCRIPTION("GPIO w1 sunxi platform device based on Damien Nicolet <zardam@gmail.com> work.");
-MODULE_AUTHOR("Grzegorz Rajtar <mcrgegor@blackmesaeast.com.pl>");
+MODULE_AUTHOR("Grzegorz Rajtar <mcgregor@blackmesaeast.com.pl>");
 MODULE_LICENSE("GPL");
