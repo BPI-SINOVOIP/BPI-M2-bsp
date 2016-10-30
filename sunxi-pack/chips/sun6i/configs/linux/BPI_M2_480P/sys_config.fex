@@ -6,7 +6,7 @@
 
 [product]
 version = "100"
-machine = "bpi-m2-lcd"
+machine = "bpi-m2-480p"
 
 [platform]
 eraseflag   = 1
@@ -418,7 +418,7 @@ rtp_exchange_x_y_flag      = 0
 ;notice ---    tp_int_port &  tp_io_port use the same port
 ;----------------------------------------------------------------------------------
 [ctp_para]
-ctp_used            = 1
+ctp_used            = 0
 ctp_name            = "ft5x_ts"
 ctp_twi_id          = 1
 ctp_twi_addr        = 0x38
@@ -437,7 +437,7 @@ ctp_wakeup          = port:PG01<1><default><default><1>
 ;Module name postposition 1 said detection, 0 means no detection. 
 ;--------------------------------------------------------------------------------
 [ctp_list_para]
-ctp_det_used              = 1
+ctp_det_used              = 0
 ft5x_ts                   = 1
 gt82x                     = 0
 gslX680                   = 0
@@ -531,11 +531,11 @@ nand1_ndqs          = port:PH08<2><default><default><default>
 disp_init_enable         = 1
 disp_mode                = 0
 
-screen0_output_type      = 1
-screen0_output_mode      = 4
+screen0_output_type      = 3
+screen0_output_mode      = 2
 
-screen1_output_type      = 3
-screen1_output_mode      = 5
+screen1_output_type      = 1
+screen1_output_mode      = 4
 
 fb0_format               = 10
 fb0_pixel_sequence       = 0
@@ -593,7 +593,7 @@ lcd1_hue                 = 50
 ;smart_color           90:normal lcd screen 65:retina lcd screen(9.7inch)
 ;----------------------------------------------------------------------------------
 [lcd0_para]
-lcd_used            = 1
+lcd_used            = 0
 lcd_driver_name     = "default_lcd"
 lcd_if              = 0
 lcd_hv_if           = 0
@@ -1004,7 +1004,7 @@ sdc_isio          = 0
 sdc_regulator     = "none"
 
 [mmc1_para]
-sdc_used          = 1
+sdc_used          = 0
 sdc_detmode       = 4
 sdc_buswidth      = 4
 sdc_clk           = port:PG00<2><1><2><default>
@@ -1444,14 +1444,14 @@ axp_0            = "axp22_dldo4"
 ;axp_1           = "axp22_dldo1"
 
 ;----------------------------------------------------------------------------------                                   
-;gpio configuration
+;Boot gpio configuration
 ;----------------------------------------------------------------------------------
 [boot_init_gpio]                    
 use                = 0
-gpio_pin_1         = port:PH13<1><default><default><1>
+gpio_pin_1         =
 
 ;----------------------------------------------------------------------------------                                   
-;gpio configuration Justin
+;gpio configuration 
 ;----------------------------------------------------------------------------------
 [gpio_para]                    
 gpio_used                  = 1
@@ -1590,7 +1590,7 @@ gpio_pin_30                = port:PG11<1><default><default><default>
 [pmu_para]
 pmu_used                   = 1
 pmu_twi_addr               = 0x34
-pmu_twi_id                 = 1
+pmu_twi_id                 = 3
 pmu_irq_id                 = 0
 pmu_battery_rdc            = 100
 pmu_battery_cap            = 0
@@ -1821,7 +1821,7 @@ cpus_uart_debug_used = 1
 ;auto_hpd     (auto detect hdmi/cvbs/ypbpr plug in)
 ;----------------------------------------------------------------------------------
 [boot_disp]
-output_type              = 1
+output_type              = 3
 output_mode              = 5
 auto_hpd                 = 1
-tv_mode                  = 11
+

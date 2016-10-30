@@ -6,14 +6,15 @@ SOC=a31s
 MACH=sun6i
 PLATFORM=
 BOARD=
+TOPDIR=`pwd`
+#TARGET_PLATFORM="BPI"
+#TARGET_PRODUCT="BPI-M2"
 
 CUR_DIR=$PWD
 CROSS_COMPILE=$CUR_DIR/allwinner-tools/toolchain/bin
 
 list_boards() {
-	ls -1 sunxi-pack/chips/sun6i/configs/*/*/*.fex |
-	sed -n -e 's|.*/\([^/]\+\)\.fex$|\1|p' | sort -V |
-        sed -e 's|.*|\t* \0 \0-android|'
+	(cd sunxi-pack/chips/$MACH/configs/linux ; ls -1d BPI* )
 }
 
 # keep the output `sh` friendly
@@ -31,13 +32,33 @@ generate_board_mk() {
 
 }
 
+
+generate_board_envsh() {
+	
+	cat <<-EOT
+	export ARCH=arm
+	export BOARD=$BOARD
+	export SOC=$SOC
+	export MACH=$MACH
+	export CROSS_COMPILE=arm-linux-gnueabihf-
+	export UBOOT_CONFIG=${MACH}_config
+	export KERNEL_CONFIG=sun6i_bpi_defconfig
+#	export LICHEE_PLATFORM="linux"
+#	export GPU_TYPE="powervr"
+	export TOPDIR=${TOPDIR}
+#	export TARGET_PLATFORM=${TARGET_PLATFORM}
+#	export TARGET_PRODUCT=${TARGET_PRODUCT}
+	EOT
+
+}
+
 usage() {
 	cat <<-EOT >&2
 	Usage: $0 <board>
 
 	supported boards:
 	EOT
-	#list_boards  #DK, update later
+	list_boards  #DK, update later
 }
 
 if [ $# -eq 0 ]; then
@@ -46,6 +67,8 @@ if [ $# -eq 0 ]; then
 fi
 
 BOARD=$1
+
+generate_board_envsh "$1" > env.sh
 
 out=chosen_board.mk
 if generate_board_mk "$1" > $out~; then
