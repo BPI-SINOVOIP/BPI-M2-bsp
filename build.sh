@@ -6,6 +6,7 @@ MACH="sun6i"
 BOARD=BPI_M2_720P
 board="bpi-m2"
 kernel="3.3.0-BPI-M2-Kernel"
+MODE=$1
 
 
 cp_download_files()
@@ -85,8 +86,12 @@ echo "	6. update files for SD"
 echo "	7. Clean all build."
 echo "--------------------------------------------------------------------------------"
 
-read -p "Please choose a mode(1-7): " mode
-echo
+if [ -z "$MODE" ]; then
+	read -p "Please choose a mode(1-7): " mode
+	echo
+else
+	mode=1
+fi
 
 if [ -z "$mode" ]; then
         echo -e "\033[31m No build mode choose, using Build all default   \033[0m"
